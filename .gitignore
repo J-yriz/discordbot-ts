@@ -1,0 +1,11 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Package lock file
+package-lock.json
+
+# Compiled folders (customize the path if necessary)
+compile/
