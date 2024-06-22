@@ -4,7 +4,7 @@ This project is a Discord bot built using TypeScript and the [discord.js](https:
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (version 16.6.0 or higher is required for discord.js v14)
+- [Node.js](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
 - [TypeScript](https://www.typescriptlang.org/)
 
