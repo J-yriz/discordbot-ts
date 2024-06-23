@@ -3,7 +3,7 @@ import { REST, Routes } from "discord.js";
 
 const clientID: any = config.ClientID;
 
-const regisSlashCommand = async (token: string, commands: any) => {
+const regisSlashCommand = (token: string, commands: any[]): void => {
     const rest = new REST().setToken(token);
 
     (async () => {

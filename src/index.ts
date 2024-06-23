@@ -1,5 +1,5 @@
 import config from "./config";
-import App from "./utils/app";
+import App from "./lib/discordBot";
 
 const Bot = new App();
 

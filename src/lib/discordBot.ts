@@ -1,6 +1,6 @@
 import fs from "fs";
-import commandHandler from "../events/commandHandler";
 import { Client, Events, GatewayIntentBits } from "discord.js";
+
 
 export default class App extends Client {
     constructor() {
@@ -21,8 +21,8 @@ export default class App extends Client {
 
         const commands: any = [];
 
-        fs.readdirSync("./src/events").forEach(async (file) => {
-            const files = file.replace(".ts", "");
+        fs.readdirSync("./src/events").forEach(async (file: string) => {
+            const files: string = file.replace(".ts", "");
             const event = await import(`../events/${files}`);
             const eventName = event.default;
             if (typeof eventName !== "function" || files === 'regisSlashCommand') return;
