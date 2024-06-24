@@ -8,14 +8,13 @@ const config = {
         LavaIP: 'localhost' || process.env.LAVA_IP,
         LavaPort: '2333' || process.env.LAVA_PORT,
         LavaPass: 'testingajah' || process.env.LAVA_PASS,
-        Secure: false
+        Secure: true
     }
 }
 
-export function lavalink(): string {
-    let depanLink = '';
-    config.Lavalink.Secure === true && config.Lavalink.LavaPort !== '2333' ? depanLink = 'https' : depanLink = 'http';
-    return `ws://${config.Lavalink.LavaIP}:${config.Lavalink.LavaPort}`;
+export function lavalink(x: string): string {
+    if (x === 'http' || 'https') return `${x}://${config.Lavalink.LavaIP}:${config.Lavalink.LavaPort}`;
+    return `${x}://${config.Lavalink.LavaIP}:${config.Lavalink.LavaPort}`;
 }
 
 export default config;

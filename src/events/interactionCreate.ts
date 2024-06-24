@@ -1,7 +1,8 @@
-import { ChatInputCommandInteraction, Events } from "discord.js";
+import App from "../lib/discordBot";
+import { Events } from "discord.js";
 
-const InteractionCreate = (app: any, token: string, commands: any[]): void => {
-    app.on(Events.InteractionCreate, async (interaction: ChatInputCommandInteraction) => {
+const InteractionCreate = (app: App, token: string, commands: any[]): void => {
+    app.on(Events.InteractionCreate, async (interaction) => {
         if (!interaction.isCommand()) return;
 
         const { commandName, client } = interaction;

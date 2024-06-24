@@ -14,7 +14,7 @@ This project is a Discord bot built using TypeScript and the [discord.js](https:
 
     ```sh
     git clone https://github.com/J-yriz/discordbot-ts.git
-    cd your-repo-name
+    cd discordbot-ts
     ```
 
 2. Install the dependencies:
@@ -35,10 +35,9 @@ This project is a Discord bot built using TypeScript and the [discord.js](https:
 
 - `npm run build` - Compile TypeScript to JavaScript.
 - `npm run start` - Start the bot using the compiled JavaScript code.
-- `npm run dev` - Start the bot using ts-node for development.
 
 ## Project Structure
 
 - `src/` - The main source code for the bot.
-- `compile/` - The compiled JavaScript code.
+- `dist/` - The compiled JavaScript code.
 

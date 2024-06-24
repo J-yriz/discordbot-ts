@@ -1,7 +1,8 @@
+import App from "../lib/discordBot";
 import { Events } from "discord.js";
 
-const ready = (app: any, token: string, commands: any[]): void => {
-    app.once(Events.ClientReady, (app: any) => {
+const ready = (app: App, token: string, commands: any[]): void => {
+    app.once(Events.ClientReady, (app) => {
         console.log(`Logged in as ${app.user.tag}`);
     });
 };

@@ -1,12 +1,13 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
+import App from '../../lib/discordBot';
+import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 
 const ping = {
 	data: new SlashCommandBuilder()
 		.setName('ping')
 		.setDescription('Replies with ping!')
         .setDMPermission(false)
-		.setDefaultPermission(true),
-	async exec(interaction: ChatInputCommandInteraction, client: any) {
+        .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages),
+	async exec(interaction: ChatInputCommandInteraction, client: App) {
 		await interaction.reply({ content: 'Pong!', ephemeral: true});
 	},
 };

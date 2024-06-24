@@ -1,8 +1,12 @@
 import fs from "fs";
-import { Client, Events, GatewayIntentBits } from "discord.js";
+import path from "path";
+import { Client, GatewayIntentBits } from "discord.js";
 
 
 export default class App extends Client {
+
+    commands: any = [];
+    
     constructor() {
         super({
             intents: [
@@ -16,19 +20,16 @@ export default class App extends Client {
         });
     }
 
-    start(token: string = "") {
+    async start(token: string = "") {
         if (!token) throw new Error("No token provided || Token is empty");
-
-        const commands: any = [];
-
-        fs.readdirSync("./src/events").forEach(async (file: string) => {
-            const files: string = file.replace(".ts", "");
-            const event = await import(`../events/${files}`);
-            const eventName = event.default;
-            if (typeof eventName !== "function" || files === 'regisSlashCommand') return;
-            await eventName(this, token, commands);
-        });
-        console.log("Events loaded");
+        
+        const eventPath = path.join(__dirname, '../events');
+        const eventFolders = fs.readdirSync(eventPath);
+        for (const eventFile of eventFolders) {
+            if (eventFile.replace('.js', '') === 'regisSlashCommand') continue;
+            const event = await import(`../events/${eventFile}`);
+            event.default(this, token, this.commands);
+        }
 
         this.login(token);
     }

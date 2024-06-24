@@ -1,4 +1,6 @@
 import fs from "fs";
+import path from "path";
+import App from "../lib/discordBot";
 import regisSlashCommand from "./regisSlashCommand";
 import { ChatInputCommandInteraction, Collection } from "discord.js";
 
@@ -7,33 +9,27 @@ export interface Command {
         name: string;
         toJSON: () => any;
     };
-    exec: (interaction: ChatInputCommandInteraction) => void;
+    exec: (interaction: ChatInputCommandInteraction) => Promise<void>;
 }
 
-const commandHandler = async (app: any, token: string, commands: any[]) => {
+const commandHandler = async (app: App, token: string, commands: any[]) => {
     if (!app) throw new Error("No app provided");
 
     app.commands = new Collection<string, Command>();
 
-    const commandFolder: string[] = fs.readdirSync("./src/commands");
-    for (const folder of commandFolder) {
-        const commandFiles: string[] = fs.readdirSync(`./src/commands/${folder}`).filter((file) => file.endsWith(".ts"));
-        for (const file of commandFiles) {
-            const files = file.replace(".ts", "");
-            const commandsFile = await import(`../commands/${folder}/${files}`);
-            const command: Command = commandsFile.default;
-
-            if ("data" in command && "exec" in command) {
-                app.commands.set(command.data.name, command);
-                commands.push(command.data.toJSON());
-            } else {
-                console.log(`Error: ${file} is not a valid command`);
-            }
+    const commandPath = path.join(__dirname, "../commands");
+    const commandFolders = fs.readdirSync(commandPath);
+    for (const commandFolder of commandFolders) {
+        const commandFiles = fs.readdirSync(path.join(__dirname, `../commands/${commandFolder}`));
+        for (const commandFile of commandFiles) {
+            const command = await import(`../commands/${commandFolder}/${commandFile}`);
+            const { data, exec } = command.default;
+            if (!data || !exec) continue;
+            app.commands.set(data.name, { data, exec });
+            commands.push(data.toJSON());
         }
     }
-    
-    console.log("Commands loaded");
-    await regisSlashCommand(token, commands);
+    regisSlashCommand(token, commands);
 };
 
 export default commandHandler;
