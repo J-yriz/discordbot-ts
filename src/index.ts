@@ -1,5 +1,5 @@
 import config from "./config";
-import App from "./lib/discordBot";
+import App from "./utils/discordBot";
 
 const Bot = new App();
 
@@ -8,3 +8,9 @@ try {
 } catch (error) {
     console.error(error);
 }
+
+// import { searchTrack } from "./utils/getLavalink";
+// searchTrack('Rex Orange County - Sunflower')
+//     .then((data) => {
+//         console.log(data);
+//     })

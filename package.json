@@ -8,11 +8,13 @@
     "start": "rmdir dist /s /q && tsc && node dist"
   },
   "dependencies": {
+    "@discordjs/voice": "^0.17.0",
     "axios": "^1.7.2",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
-    "table": "^6.8.2",
-    "ws": "^8.17.1"
+    "erela.js": "^2.4.0",
+    "libsodium-wrappers": "^0.7.13",
+    "table": "^6.8.2"
   },
   "devDependencies": {
     "@types/node": "^20.14.6",

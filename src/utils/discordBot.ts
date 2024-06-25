@@ -1,12 +1,28 @@
 import fs from "fs";
 import path from "path";
+import { Manager } from "erela.js";
+import config from "../config";
 import { Client, GatewayIntentBits } from "discord.js";
-
 
 export default class App extends Client {
 
     commands: any = [];
-    
+    manager = new Manager({
+        nodes: [
+            {
+                identifier: "Lavalink",
+                host: config.Lavalink.LavaIP,
+                port: config.Lavalink.LavaPort,
+                password: config.Lavalink.LavaPass,
+                secure: config.Lavalink.Secure,
+            },
+        ],
+        send: (id, payload) => {
+            const guild = this.guilds.cache.get(id);
+            if (guild) guild.shard.send(payload);
+        },
+    });
+
     constructor() {
         super({
             intents: [

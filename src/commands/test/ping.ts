@@ -1,4 +1,4 @@
-import App from '../../lib/discordBot';
+import App from '../../utils/discordBot';
 import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 
 const ping = {

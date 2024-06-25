@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import App from "../lib/discordBot";
+import App from "../utils/discordBot";
 import regisSlashCommand from "./regisSlashCommand";
 import { ChatInputCommandInteraction, Collection } from "discord.js";
 
