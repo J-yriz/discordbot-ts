@@ -8,10 +8,7 @@ const regisSlashCommand = (token: string, commands: any[]): void => {
 
     (async () => {
         try {
-            const data: any = await rest.put(
-                Routes.applicationCommands(clientID),
-                { body: commands }
-            )
+            const data: any = await rest.put(Routes.applicationCommands(clientID), { body: commands });
 
             console.log(`Successfully reloaded ${data.length} application (/) commands.`);
         } catch (error) {
