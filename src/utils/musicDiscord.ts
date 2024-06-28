@@ -1,37 +1,37 @@
 import {
+    AudioPlayerStatus,
     joinVoiceChannel,
     createAudioPlayer,
     createAudioResource,
-    AudioPlayerStatus,
-    VoiceConnectionStatus,
     NoSubscriberBehavior,
+    AudioResource,
 } from "@discordjs/voice";
 import { ChatInputCommandInteraction } from "discord.js";
 
 export default class Music {
 
-    private userVoice: string = '';
-    private interaction: ChatInputCommandInteraction = {} as ChatInputCommandInteraction;
-    private playTrack: string = '';
+    queue: AudioResource[] = [];
 
-    connection = joinVoiceChannel({
-        channelId: this.userVoice,
-        guildId: this.interaction.guildId as string,
-        adapterCreator: this.interaction.guild?.voiceAdapterCreator as any,
-    });
-    player = createAudioPlayer({
-        behaviors: {
-            noSubscriber: NoSubscriberBehavior.Pause,
-        },
-    });
-    resource = createAudioResource(this.playTrack, { inlineVolume: true });
-
-    setConnect(userVoice: string, interaction: ChatInputCommandInteraction): void {
-        this.userVoice = userVoice;
-        this.interaction = interaction;
+    connection(userVoice: string, interaction: ChatInputCommandInteraction) {
+        return joinVoiceChannel({
+            channelId: userVoice,
+            guildId: interaction.guildId as string,
+            adapterCreator: interaction.guild?.voiceAdapterCreator as any,
+        });
     }
-    setTrack(value: string): void {
-        this.playTrack = value;
+    player() {
+        return createAudioPlayer({
+            behaviors: {
+                noSubscriber: NoSubscriberBehavior.Pause,
+            },
+        });
+    }
+    resource(track: string) {
+        return createAudioResource(track, { inlineVolume: true});
+    }
+
+    set queueTrack(track: AudioResource) {
+        this.queue.push(track);
     }
 
 }

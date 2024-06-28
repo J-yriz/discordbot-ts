@@ -1,7 +1,7 @@
 import App from "../../utils/discordBot";
-import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import { AudioPlayerStatus } from "@discordjs/voice";
 import Music from "../../utils/musicDiscord";
+import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { AudioPlayerStatus, joinVoiceChannel, createAudioPlayer, createAudioResource, NoSubscriberBehavior } from "@discordjs/voice";
 
 const noVoiceChannel: EmbedBuilder = new EmbedBuilder()
     .setTitle("Error")
@@ -27,29 +27,33 @@ const play = {
         const query = interaction.options.getString("song");
         const guild = interaction.guild?.members.cache.get(interaction.user.id);
         const userVoice = guild?.voice.channel?.id;
+
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
+        const music: Music = new Music();
+        
         await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Searching for the song...")] });
         const trackGet = await app.lavaClient(query);
+        const connection = music.connection(userVoice, interaction);
+        const player = music.player();
+        
         if (trackGet === "No tracks found")
             return await interaction.editReply({ embeds: [new EmbedBuilder().setTitle("No tracks found")] });
         const playTrack = app.lavaPlay(trackGet.uri);
-        const music: Music = new Music();
-        music.setConnect(userVoice, interaction);
-        music.setTrack(playTrack);
-        music.player.play(music.resource);
-        music.connection.subscribe(music.player);
+        const resource = music.resource(playTrack);
+        player.play(resource);
+        connection.subscribe(player);
+
         await interaction.editReply({
             embeds: [new EmbedBuilder().setTitle(trackGet.title).setURL(trackGet.uri).setTimestamp()],
         });
 
-        music.player.on("error", (error) => {
+        player.on("error", (error) => {
             console.error(error);
             interaction.editReply({ embeds: [errorEmbed] });
         });
 
-        music.player.on(AudioPlayerStatus.Idle, () => {
-            console.log("Player is idle");
-            music.connection.destroy();
+        player.on(AudioPlayerStatus.Idle, () => {
+            connection.destroy();
         });
     },
 };
