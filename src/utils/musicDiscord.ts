@@ -7,10 +7,10 @@ import {
     AudioResource,
 } from "@discordjs/voice";
 import { ChatInputCommandInteraction } from "discord.js";
+import { IQueue } from "./interface";
 
 export default class Music {
-
-    queue: AudioResource[] = [];
+    queue: IQueue[] = [];
 
     connection(userVoice: string, interaction: ChatInputCommandInteraction) {
         return joinVoiceChannel({
@@ -27,11 +27,10 @@ export default class Music {
         });
     }
     resource(track: string) {
-        return createAudioResource(track, { inlineVolume: true});
+        return createAudioResource(track, { inlineVolume: true });
     }
 
-    set queueTrack(track: AudioResource) {
+    set setQueueTrack(track: IQueue) {
         this.queue.push(track);
     }
-
 }
