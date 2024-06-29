@@ -8,29 +8,50 @@ import {
 } from "@discordjs/voice";
 import { ChatInputCommandInteraction } from "discord.js";
 import { IQueue } from "./interface";
+import fs from "fs";
 
-export default class Music {
-    queue: IQueue[] = [];
+export const queue: IQueue[] = [];
 
-    connection(userVoice: string, interaction: ChatInputCommandInteraction) {
-        return joinVoiceChannel({
-            channelId: userVoice,
-            guildId: interaction.guildId as string,
-            adapterCreator: interaction.guild?.voiceAdapterCreator as any,
-        });
-    }
-    player() {
-        return createAudioPlayer({
-            behaviors: {
-                noSubscriber: NoSubscriberBehavior.Pause,
-            },
-        });
-    }
-    resource(track: string) {
-        return createAudioResource(track, { inlineVolume: true });
-    }
+export const connection = (userVoice: string, interaction: ChatInputCommandInteraction) => {
+    return joinVoiceChannel({
+        channelId: userVoice,
+        guildId: interaction.guildId as string,
+        adapterCreator: interaction.guild?.voiceAdapterCreator as any,
+    });
+};
 
-    set setQueueTrack(track: IQueue) {
-        this.queue.push(track);
-    }
+export const player = () => {
+    return createAudioPlayer({
+        behaviors: {
+            noSubscriber: NoSubscriberBehavior.Play,
+        },
+    });
+};
+
+export const resource = (track: string) => {
+    return createAudioResource(track);
+};
+
+export const setQueue = (track: IQueue, interaction: ChatInputCommandInteraction) => {
+    queue.push(track);
+    fs.writeFileSync(
+        `./json/guilds/${interaction.guildId}.json`,
+        JSON.stringify({ serverName: interaction.guild?.name, queueMusic: queue }, null, 2)
+    );
+};
+
+export const skipMusic = (interaction: ChatInputCommandInteraction) => {
+    queue.shift();
+    fs.writeFileSync(
+        `./json/guilds/${interaction.guildId}.json`,
+        JSON.stringify({ serverName: interaction.guild?.name, queueMusic: queue }, null, 2)
+    );
+}
+
+export const clearQueue = (interaction: ChatInputCommandInteraction) => {
+    queue.splice(0, queue.length);
+    fs.writeFileSync(
+        `./json/guilds/${interaction.guildId}.json`,
+        JSON.stringify({ serverName: interaction.guild?.name, queueMusic: queue }, null, 2)
+    );
 }

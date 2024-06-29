@@ -1,9 +1,11 @@
 import "dotenv/config";
 
 const config = {
+    // Your bot's
     Token: "" || process.env.DISCORD_TOKEN,
     ClientID: "" || process.env.DISCORD_CLIENT_ID,
     ClientSecret: "" || process.env.DISCORD_CLIENT_SECRET,
+    // You can get this from https://lavalink.darrennathanael.com/
     Lavalink: {
         LavaIP: "lava-v3.ajieblogs.eu.org" || process.env.LAVA_IP,
         LavaPort: 443 || process.env.LAVA_PORT,
@@ -12,6 +14,7 @@ const config = {
     },
 };
 
+// Please don't touch this
 export function lavalink(x: string): string {
     const { LavaIP, LavaPort, Secure } = config.Lavalink;
 

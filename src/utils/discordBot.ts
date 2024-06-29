@@ -8,6 +8,7 @@ import playTrack from "../api/lavalink/playTrack";
 
 export default class App extends Client {
     commands: any = [];
+
     lavaClient: Function = trackGet;
     lavaPlay: Function = playTrack;
 
