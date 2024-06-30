@@ -2,11 +2,11 @@ import App from "../../utils/discordBot";
 import {
     queue,
     connection,
-    player,
+    playerBot,
     resource,
     setQueue,
-    clearQueue,
     skipMusic,
+    noVoiceChannel,
 } from "../../utils/musicDiscord";
 import {
     ChatInputCommandInteraction,
@@ -14,13 +14,8 @@ import {
     SlashCommandBuilder,
     EmbedBuilder,
 } from "discord.js";
-import { AudioPlayerStatus, VoiceConnection } from "@discordjs/voice";
+import { AudioPlayer, AudioPlayerStatus, AudioResource, VoiceConnection } from "@discordjs/voice";
 import { IQueue } from "../../utils/interface";
-
-const noVoiceChannel: EmbedBuilder = new EmbedBuilder()
-    .setTitle("Error")
-    .setDescription("Kamu harus berada di voice channel untuk menggunakan perintah ini")
-    .setColor("DarkRed");
 
 const play = {
     data: new SlashCommandBuilder()
@@ -60,9 +55,8 @@ const play = {
         setQueue(track, interaction);
 
         if (queue.length === 1) {
-            const connect = connection(userVoice, interaction);
-            const playerBot = player();
-            const resourceMusic = resource(app.lavaPlay(track.uri));
+            const connect: VoiceConnection = connection(userVoice, interaction);
+            const resourceMusic: AudioResource = resource(app.lavaPlay(track.uri));
             playerBot.play(resourceMusic);
             connect.subscribe(playerBot);
 
@@ -82,29 +76,29 @@ const play = {
     },
 };
 
-const secondToMinute = (second: number) => {
-    const minute = Math.floor(second / 60000);
-    const secondResult = second % 60;
-    return `${minute}:${secondResult}`;
+function durationMusic(durasi: number): string {
+    const hasilBagi = durasi / 60000;
+    let jam = Math.floor(hasilBagi);
+    let menit = Math.round((hasilBagi - jam) * 60)
+        .toString()
+        .padStart(2, "0");
+    return `${jam}:${menit}`;
 }
 
 export const playSong = async (
     queue: IQueue[],
-    playerBot: any,
+    playerBot: AudioPlayer,
     interaction: ChatInputCommandInteraction,
     app: App,
     userVoice: string,
     connect: VoiceConnection
-) => {
-    if (queue.length > 1) {
-        skipMusic(interaction);
-        playerBot.stop();
-    }
+): Promise<void> => {
     const nextTrack = queue[0];
     const resourceMusic = resource(app.lavaPlay(nextTrack.uri));
+    playerBot.stop();
     playerBot.play(resourceMusic);
     connect.subscribe(playerBot);
-
+    
     await interaction.channel?.send({
         embeds: [
             new EmbedBuilder()
@@ -112,8 +106,12 @@ export const playSong = async (
                 .setTitle(nextTrack.title)
                 .setURL(nextTrack.uri)
                 .addFields(
-                    { name: 'Author Music', value: `${nextTrack.author}`, inline: true },
-                    { name: 'Durasi Music', value: `${secondToMinute(nextTrack.length)}`, inline: true },
+                    { name: "Author Music", value: `${nextTrack.author}`, inline: true },
+                    {
+                        name: "Durasi Music",
+                        value: `${durationMusic(nextTrack.length)}`,
+                        inline: true,
+                    }
                 )
                 .setColor("Red")
                 .setTimestamp(),
@@ -124,9 +122,12 @@ export const playSong = async (
     playerBot.on("error", async () => {
         await interaction.channel?.send({
             embeds: [
-                new EmbedBuilder().setTitle("Music Error").setDescription(`Skip music ${queue[0].title}`),
+                new EmbedBuilder()
+                    .setTitle("Music Error")
+                    .setDescription(`Skip music ${queue[0].title}`),
             ],
         });
+        skipMusic(interaction);
         if (queue.length > 0) {
             playSong(queue, playerBot, interaction, app, userVoice, connect);
         }
@@ -134,14 +135,19 @@ export const playSong = async (
 
     playerBot.removeAllListeners(AudioPlayerStatus.Idle);
     playerBot.on(AudioPlayerStatus.Idle, async () => {
-        if (queue.length > 1) {
+        skipMusic(interaction);
+        if (queue.length > 0) {
             playSong(queue, playerBot, interaction, app, userVoice, connect);
         } else {
             const connect = connection(userVoice, interaction);
-            await interaction.channel?.send({
-                embeds: [new EmbedBuilder().setTitle("Music selesai, bot dikeluarkan.").setColor("LightGrey")],
-            });
             connect.destroy();
+            await interaction.channel?.send({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle("Music selesai, bot dikeluarkan.")
+                        .setColor("LightGrey"),
+                ],
+            });
         }
     });
 };

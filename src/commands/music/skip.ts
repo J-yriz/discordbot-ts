@@ -1,17 +1,13 @@
 import { playSong } from "./play";
 import App from "../../utils/discordBot";
-import { queue, player, skipMusic, connection } from "../../utils/musicDiscord";
+import { queue, playerBot, connection, skipMusic, noVoiceChannel } from "../../utils/musicDiscord";
 import {
     ChatInputCommandInteraction,
     PermissionFlagsBits,
     SlashCommandBuilder,
     EmbedBuilder,
 } from "discord.js";
-
-const noVoiceChannel: EmbedBuilder = new EmbedBuilder()
-    .setTitle("Error")
-    .setDescription("Kamu harus berada di voice channel untuk menggunakan perintah ini")
-    .setColor("DarkRed");
+import { AudioPlayer, VoiceConnection } from "@discordjs/voice";
 
 const skip = {
     data: new SlashCommandBuilder()
@@ -22,8 +18,7 @@ const skip = {
     async exec(interaction: ChatInputCommandInteraction, app: App) {
         const guild = interaction.guild?.members.cache.get(interaction.user.id);
         const userVoice = guild?.voice.channel?.id;
-        const connect = connection(`${userVoice}`, interaction);
-        const playerBot = player();
+        const connect: VoiceConnection = connection(`${userVoice}`, interaction);
 
         if (!userVoice)
             return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
@@ -39,6 +34,7 @@ const skip = {
                 new EmbedBuilder().setTitle("Success").setDescription(`Skip music ${queue[0].title}`).setColor("Green"),
             ],
         });
+        skipMusic(interaction);
         playSong(queue, playerBot, interaction, app, userVoice, connect);
     },
 };

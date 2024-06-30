@@ -1,16 +1,11 @@
 import App from "../../utils/discordBot";
-import { queue, connection, player, resource } from "../../utils/musicDiscord";
+import { connection, noVoiceChannel } from "../../utils/musicDiscord";
 import {
     ChatInputCommandInteraction,
     PermissionFlagsBits,
     SlashCommandBuilder,
     EmbedBuilder,
 } from "discord.js";
-
-const noVoiceChannel: EmbedBuilder = new EmbedBuilder()
-    .setTitle("Error")
-    .setDescription("Kamu harus berada di voice channel untuk menggunakan perintah ini")
-    .setColor("DarkRed");
 
 const join = {
     data: new SlashCommandBuilder()
@@ -27,7 +22,6 @@ const join = {
         connection(userVoice, interaction);
 
         await interaction.reply({ content: `Join to <#${userVoice}>`, ephemeral: true });
-        console.log(queue);
     },
 };
 

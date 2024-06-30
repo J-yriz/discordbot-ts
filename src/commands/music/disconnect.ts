@@ -1,16 +1,12 @@
+import { VoiceConnection } from "@discordjs/voice";
 import App from "../../utils/discordBot";
-import { queue, connection, clearQueue } from "../../utils/musicDiscord";
+import { queue, connection, clearQueue, noVoiceChannel } from "../../utils/musicDiscord";
 import {
     ChatInputCommandInteraction,
     PermissionFlagsBits,
     SlashCommandBuilder,
     EmbedBuilder,
 } from "discord.js";
-
-const noVoiceChannel: EmbedBuilder = new EmbedBuilder()
-    .setTitle("Error")
-    .setDescription("Kamu harus berada di voice channel untuk menggunakan perintah ini")
-    .setColor("DarkRed");
 
 const disconnect = {
     data: new SlashCommandBuilder()
@@ -24,7 +20,7 @@ const disconnect = {
 
         if (!userVoice)
             return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
-        const connect = connection(userVoice, interaction);
+        const connect: VoiceConnection = connection(userVoice, interaction);
 
         await interaction.reply({ content: `Disconnected from <#${userVoice}>`, ephemeral: true });
         connect.destroy();

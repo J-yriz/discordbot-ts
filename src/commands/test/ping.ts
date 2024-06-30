@@ -9,7 +9,7 @@ const ping = {
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
         await interaction.reply({
-            embeds: [new EmbedBuilder().setTitle(`${app.ws.ping}ms`).setTimestamp()],
+            embeds: [new EmbedBuilder().setTitle(`${app.ws.ping}ms`).setColor("Random").setTimestamp()],
             ephemeral: true,
         });
     },
