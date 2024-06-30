@@ -6,7 +6,7 @@ import {
     NoSubscriberBehavior,
     AudioResource,
 } from "@discordjs/voice";
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { IQueue } from "./interface";
 import fs from "fs";
 
@@ -20,7 +20,7 @@ export const connection = (userVoice: string, interaction: ChatInputCommandInter
     });
 };
 
-export const player = () => {
+const player = () => {
     return createAudioPlayer({
         behaviors: {
             noSubscriber: NoSubscriberBehavior.Play,
@@ -55,3 +55,11 @@ export const clearQueue = (interaction: ChatInputCommandInteraction) => {
         JSON.stringify({ serverName: interaction.guild?.name, queueMusic: queue }, null, 2)
     );
 }
+
+// Embed
+export const noVoiceChannel: EmbedBuilder = new EmbedBuilder()
+    .setTitle("Error")
+    .setDescription("Kamu harus berada di voice channel untuk menggunakan perintah ini")
+    .setColor("DarkRed");
+
+export const playerBot = player();
