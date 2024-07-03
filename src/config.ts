@@ -23,17 +23,17 @@ export function lavalink(x: string): string {
 
     if (x === "http" && Secure) {
         return `https://${LavaIP}:${LavaPort}`;
-    } else if (x === "http" && !Secure){
+    } else if (x === "http" && !Secure) {
         return `http://${LavaIP}:${LavaPort}`;
     }
 
     if (x === "ws" && Secure) {
         return `wss://${LavaIP}:${LavaPort}`;
-    } else if (x === "ws" && !Secure){
+    } else if (x === "ws" && !Secure) {
         return `ws://${LavaIP}:${LavaPort}`;
     }
 
-    return 'error'
+    return "error";
 }
 
 export default config;

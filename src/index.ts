@@ -8,9 +8,3 @@ try {
 } catch (error) {
     console.error(error);
 }
-
-// import { searchTrack } from "./utils/getLavalink";
-// searchTrack('Rex Orange County - Sunflower')
-//     .then((data) => {
-//         console.log(data);
-//     })
