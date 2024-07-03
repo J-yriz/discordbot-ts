@@ -1,21 +1,9 @@
 import App from "../../utils/discordBot";
-import {
-    queue,
-    connection,
-    playerBot,
-    resource,
-    setQueue,
-    skipMusic,
-    noVoiceChannel,
-} from "../../utils/musicDiscord";
-import {
-    ChatInputCommandInteraction,
-    PermissionFlagsBits,
-    SlashCommandBuilder,
-    EmbedBuilder,
-} from "discord.js";
+import { MusicDiscord, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, GuildMember } from "discord.js";
 import { AudioPlayer, AudioPlayerStatus, AudioResource, VoiceConnection } from "@discordjs/voice";
 import { IQueue } from "../../utils/interface";
+import { looping, changeLoop } from "./loop";
 
 const play = {
     data: new SlashCommandBuilder()
@@ -23,44 +11,45 @@ const play = {
         .setDescription("Play music with the bot")
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false)
-        .addStringOption((option) =>
-            option.setName("song").setDescription("The song you want to play").setRequired(true)
-        ),
+        .addStringOption((option) => option.setName("song").setDescription("Music apa saja yang ingin kamu putar.").setRequired(true)),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
         const query = interaction.options.getString("song");
-        const guild = interaction.guild?.members.cache.get(interaction.user.id);
-        const userVoice = guild?.voice.channel?.id;
+        const guild: GuildMember = interaction.guild?.members.cache.get(interaction.user.id) as GuildMember;
+        const userVoice: string = guild?.voice.channel?.id as string;
 
-        if (!userVoice)
-            return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
+        if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         await interaction.reply({
             embeds: [new EmbedBuilder().setTitle("Searching for the song...")],
         });
 
         const trackGet = await app.lavaClient(query);
-
-        if (trackGet === "No tracks found")
+        if (!trackGet.length) {
             return await interaction.editReply({
-                embeds: [new EmbedBuilder().setTitle("No tracks found")],
+                embeds: [new EmbedBuilder().setTitle("No tracks found").setColor("Random")],
             });
+        }
+        const trackGetInfo = trackGet[0].info;
 
-        const track = {
-            title: trackGet.title,
-            uri: trackGet.uri,
-            author: trackGet.author,
-            length: trackGet.length,
+        const track: IQueue = {
+            title: trackGetInfo.title,
+            uri: trackGetInfo.uri,
+            author: trackGetInfo.author,
+            length: trackGetInfo.length,
         };
 
-        setQueue(track, interaction);
+        dataServer.get(interaction.guildId as string)?.queue.push(track);
+        const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
+        console.log(serverData.queue);
 
-        if (queue.length === 1) {
-            const connect: VoiceConnection = connection(userVoice, interaction);
-            const resourceMusic: AudioResource = resource(app.lavaPlay(track.uri));
+        if (serverData.queue.length === 1) {
+            const connect: VoiceConnection = serverData.connection(userVoice, interaction);
+            const resourceMusic: AudioResource = serverData.resource(app.lavaPlay(track.uri));
+            const playerBot: AudioPlayer = serverData.playerBot();
             playerBot.play(resourceMusic);
             connect.subscribe(playerBot);
 
-            playSong(queue, playerBot, interaction, app, userVoice, connect);
+            playSong(serverData, playerBot, interaction, app, userVoice, connect);
         } else {
             await interaction.editReply({
                 embeds: [
@@ -76,7 +65,7 @@ const play = {
     },
 };
 
-function durationMusic(durasi: number): string {
+export function durationMusic(durasi: number): string {
     const hasilBagi = durasi / 60000;
     let jam = Math.floor(hasilBagi);
     let menit = Math.round((hasilBagi - jam) * 60)
@@ -86,19 +75,20 @@ function durationMusic(durasi: number): string {
 }
 
 export const playSong = async (
-    queue: IQueue[],
+    serverData: MusicDiscord,
     playerBot: AudioPlayer,
     interaction: ChatInputCommandInteraction,
     app: App,
     userVoice: string,
     connect: VoiceConnection
 ): Promise<void> => {
-    const nextTrack = queue[0];
-    const resourceMusic = resource(app.lavaPlay(nextTrack.uri));
+    const queue: IQueue[] = serverData.queue;
+    const nextTrack: IQueue = queue[0];
+    const resourceMusic: AudioResource = serverData.resource(app.lavaPlay(nextTrack.uri));
     playerBot.stop();
     playerBot.play(resourceMusic);
     connect.subscribe(playerBot);
-    
+
     await interaction.channel?.send({
         embeds: [
             new EmbedBuilder()
@@ -121,32 +111,26 @@ export const playSong = async (
     playerBot.removeAllListeners("error");
     playerBot.on("error", async () => {
         await interaction.channel?.send({
-            embeds: [
-                new EmbedBuilder()
-                    .setTitle("Music Error")
-                    .setDescription(`Skip music ${queue[0].title}`),
-            ],
+            embeds: [new EmbedBuilder().setTitle("Music Error").setDescription(`Skip music ${queue[0].title}`)],
         });
-        skipMusic(interaction);
+        serverData.queue.shift();
         if (queue.length > 0) {
-            playSong(queue, playerBot, interaction, app, userVoice, connect);
+            playSong(serverData, playerBot, interaction, app, userVoice, connect);
         }
     });
 
     playerBot.removeAllListeners(AudioPlayerStatus.Idle);
     playerBot.on(AudioPlayerStatus.Idle, async () => {
-        skipMusic(interaction);
+        if (!looping) serverData.queue.shift();
         if (queue.length > 0) {
-            playSong(queue, playerBot, interaction, app, userVoice, connect);
+            playSong(serverData, playerBot, interaction, app, userVoice, connect);
         } else {
-            const connect = connection(userVoice, interaction);
+            const connect: VoiceConnection = serverData.connection(userVoice, interaction);
             connect.destroy();
+            changeLoop(false);
+            dataServer.delete(interaction.guildId as string);
             await interaction.channel?.send({
-                embeds: [
-                    new EmbedBuilder()
-                        .setTitle("Music selesai, bot dikeluarkan.")
-                        .setColor("LightGrey"),
-                ],
+                embeds: [new EmbedBuilder().setTitle("Music selesai, bot dikeluarkan.").setColor("LightGrey")],
             });
         }
     });

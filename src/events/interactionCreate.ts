@@ -1,18 +1,20 @@
 import fs from "fs";
 import path from "path";
 import App from "../utils/discordBot";
+import { MusicDiscord, dataServer } from "../utils/musicDiscord";
 import { Events, EmbedBuilder } from "discord.js";
 
 const InteractionCreate = (app: App, token: string, commands: any[]): void => {
     app.on(Events.InteractionCreate, async (interaction) => {
         if (!interaction.isCommand()) return;
 
-        const guildData = fs.readdirSync('./json/guilds/');
-        if (!guildData.includes(`${interaction.guildId}.json`)) {
-            fs.writeFileSync(
-                `./json/guilds/${interaction.guildId}.json`,
-                JSON.stringify({ serverName: interaction.guild?.name, queueMusic: [] }, null, 2)
-            );
+        const musicCommands = path.join(__dirname, "../commands/music");
+        const musicCommandName = fs.readdirSync(musicCommands);
+        if (musicCommandName.includes(`${interaction.commandName}.js`)) {
+            if (!dataServer.get(interaction.guildId as string)) {
+                const dataNewPlayer: MusicDiscord = new MusicDiscord();
+                dataServer.set(interaction.guildId as string, dataNewPlayer);
+            }
         }
 
         const { commandName, client } = interaction;

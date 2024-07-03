@@ -1,11 +1,6 @@
 import App from "../../utils/discordBot";
-import { connection, noVoiceChannel } from "../../utils/musicDiscord";
-import {
-    ChatInputCommandInteraction,
-    PermissionFlagsBits,
-    SlashCommandBuilder,
-    EmbedBuilder,
-} from "discord.js";
+import { MusicDiscord, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, GuildMember } from "discord.js";
 
 const join = {
     data: new SlashCommandBuilder()
@@ -14,13 +9,13 @@ const join = {
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
-        const guild = interaction.guild?.members.cache.get(interaction.user.id);
-        const userVoice = guild?.voice.channel?.id;
+        const guild: GuildMember = interaction.guild?.members.cache.get(interaction.user.id) as GuildMember;
+        const userVoice: string = guild?.voice.channel?.id as string;
+        const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
 
-        if (!userVoice)
-            return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
-        connection(userVoice, interaction);
+        if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
+        serverData.connection(userVoice, interaction);
         await interaction.reply({ content: `Join to <#${userVoice}>`, ephemeral: true });
     },
 };

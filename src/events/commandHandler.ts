@@ -23,7 +23,7 @@ const commandHandler = async (app: App, token: string, commands: any[]) => {
         const commandFiles = fs.readdirSync(path.join(__dirname, `../commands/${commandFolder}`));
         for (const commandFile of commandFiles) {
             const command = await import(`../commands/${commandFolder}/${commandFile}`);
-            const { data, exec } = command.default;
+            const { data, exec }: Command = command.default;
             if (!data || !exec) continue;
             app.commands.set(data.name, { data, exec });
             commands.push(data.toJSON());
