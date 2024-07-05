@@ -18,22 +18,16 @@ const config = {
 };
 
 // Please don't touch this
-export function lavalink(x: string): string {
+export function lavalink(): string {
     const { LavaIP, LavaPort, Secure } = config.Lavalink;
 
-    if (x === "http" && Secure) {
+    if ( !LavaIP || !LavaPort || !Secure ) throw new Error("Please fill the Lavalink config");
+
+    if (Secure) {
         return `https://${LavaIP}:${LavaPort}`;
-    } else if (x === "http" && !Secure) {
+    } else {
         return `http://${LavaIP}:${LavaPort}`;
     }
-
-    if (x === "ws" && Secure) {
-        return `wss://${LavaIP}:${LavaPort}`;
-    } else if (x === "ws" && !Secure) {
-        return `ws://${LavaIP}:${LavaPort}`;
-    }
-
-    return "error";
 }
 
 export default config;
