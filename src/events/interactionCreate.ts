@@ -2,10 +2,17 @@ import fs from "fs";
 import path from "path";
 import App from "../utils/discordBot";
 import { MusicDiscord, dataServer } from "../utils/musicDiscord";
-import { Events, EmbedBuilder} from "discord.js";
+import { Events, EmbedBuilder } from "discord.js";
 
 const InteractionCreate = (app: App, token: string, commands: any[]): void => {
     app.on(Events.InteractionCreate, async (interaction) => {
+        const embed = new EmbedBuilder()
+            .setTitle("Error")
+            .setDescription("Terjadi Kesalahan pada Command!")
+            .setFooter({ text: "Hubungi pembuat dari bot ini malmul_." })
+            .setColor("DarkRed")
+            .setTimestamp();
+
         if (interaction.isCommand()) {
             const musicCommands = path.join(__dirname, "../commands/music");
             const musicCommandName = fs.readdirSync(musicCommands);
@@ -25,14 +32,7 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
             } catch (error) {
                 console.log(error);
                 await interaction.reply({
-                    embeds: [
-                        new EmbedBuilder()
-                            .setTitle("Error")
-                            .setDescription("Terjadi Kesalahan pada Command!")
-                            .setFooter({ text: "Hubungi pembuat dari bot ini malmul_." })
-                            .setColor("DarkRed")
-                            .setTimestamp(),
-                    ],
+                    embeds: [embed],
                     ephemeral: true,
                 });
             }
@@ -45,14 +45,7 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
             } catch (error) {
                 console.log(error);
                 await interaction.reply({
-                    embeds: [
-                        new EmbedBuilder()
-                            .setTitle("Error")
-                            .setDescription("Terjadi Kesalahan pada Command!")
-                            .setFooter({ text: "Hubungi pembuat dari bot ini malmul_." })
-                            .setColor("DarkRed")
-                            .setTimestamp(),
-                    ],
+                    embeds: [embed],
                     ephemeral: true,
                 });
             }
@@ -65,14 +58,7 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
             } catch (error) {
                 console.log(error);
                 await interaction.reply({
-                    embeds: [
-                        new EmbedBuilder()
-                            .setTitle("Error")
-                            .setDescription("Terjadi Kesalahan pada Command!")
-                            .setFooter({ text: "Hubungi pembuat dari bot ini malmul_." })
-                            .setColor("DarkRed")
-                            .setTimestamp(),
-                    ],
+                    embeds: [embed],
                     ephemeral: true,
                 });
             }
