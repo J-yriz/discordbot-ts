@@ -1,16 +1,31 @@
 import fs from "fs";
 import path from "path";
-import WebSocket from "ws";
-import config, { lavalink } from "../config";
-import { Client, GatewayIntentBits } from "discord.js";
-import trackGet from "../api/lavalink/trackGet";
-import playTrack from "../api/lavalink/playTrack";
+import { Collection, Client, GatewayIntentBits, ChatInputCommandInteraction, ButtonInteraction, StringSelectMenuInteraction } from "discord.js";
+
+export interface Command {
+    data: {
+        name: string;
+        toJSON: () => any;
+    };
+    exec: (interaction: ChatInputCommandInteraction, app: App) => Promise<void>;
+}
+
+export interface Button {
+    customId: string;
+    exec: (interaction: ButtonInteraction, app: App) => Promise<void>;
+}
+
+export interface StringSelect {
+    customId: string;
+    exec: (interaction: StringSelectMenuInteraction, app: App) => Promise<void>;
+}
 
 export default class App extends Client {
-    commands: any = [];
-
-    lavaClient: Function = trackGet;
-    lavaPlay: Function = playTrack;
+    
+    commandsCollection: Collection<string, Command> = new Collection<string, Command>();
+    buttonsCollection: Collection<string, Button> = new Collection<string, Button>();
+    stringSelectCollection: Collection<string, StringSelect> = new Collection<string, StringSelect>();
+    commands: {} = [];
 
     constructor() {
         super({
@@ -35,16 +50,6 @@ export default class App extends Client {
             const event = await import(`../events/${eventFile}`);
             event.default(this, token, this.commands);
         }
-        const ws = new WebSocket(lavalink("ws"), {
-            headers: {
-                Authorization: config.Lavalink.LavaPass,
-                "User-Id": config.ClientID,
-                "Client-Name": "Lavalink-Jariz",
-            },
-        });
-        ws.on("open", () => console.log("Connected to Lavalink WS"));
-        ws.on("close", () => console.log("Disconnected from Lavalink WS"));
-
         this.login(token);
     }
 }

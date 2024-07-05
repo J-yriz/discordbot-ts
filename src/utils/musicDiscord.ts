@@ -7,15 +7,16 @@ import {
     AudioPlayer,
     VoiceConnection,
 } from "@discordjs/voice";
-import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, StringSelectMenuInteraction } from "discord.js";
 import { IQueue } from "./interface";
+import { Readable } from "stream";
 
 export class MusicDiscord {
     original: IQueue[] = [];
     shuffle: IQueue[] = [];
     queue: IQueue[] = [];
 
-    connection(userVoice: string, interaction: ChatInputCommandInteraction): VoiceConnection {
+    connection(userVoice: string, interaction: ChatInputCommandInteraction | StringSelectMenuInteraction): VoiceConnection {
         return joinVoiceChannel({
             channelId: userVoice,
             guildId: interaction.guildId as string,
@@ -23,7 +24,7 @@ export class MusicDiscord {
         });
     }
 
-    resource(track: string): AudioResource {
+    resource(track: Readable): AudioResource {
         return createAudioResource(track, { inlineVolume: true });
     }
 
@@ -37,6 +38,11 @@ export class MusicDiscord {
 }
 
 export const dataServer = new Map<string, MusicDiscord>();
+
+export const checkVoice = (interaction: ChatInputCommandInteraction | StringSelectMenuInteraction): string => {
+    const guild = interaction.guild?.members.cache.get(interaction.user.id);
+    return guild?.voice.channel?.id as string;
+};
 
 // Embed
 export const noVoiceChannel: EmbedBuilder = new EmbedBuilder()
