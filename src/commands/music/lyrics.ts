@@ -1,6 +1,6 @@
 import App from "../../utils/discordBot";
-import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, GuildMember } from "discord.js";
-import { MusicDiscord, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
 import { Client, Song } from "genius-lyrics";
 import { IQueue } from "../../utils/interface";
 import config from "../../config";
@@ -13,16 +13,13 @@ const lyrics = {
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
-        const guild: GuildMember = interaction.guild?.members.cache.get(interaction.user.id) as GuildMember;
-        const userVoice: string = guild?.voice.channel?.id as string;
-        const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
-        const queue = serverData.queue;
-
+        const userVoice: string = checkVoice(interaction);
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
-        await interaction.reply({
-            embeds: [new EmbedBuilder().setTitle("Searching for the lyrics...")],
-        });
+        await interaction.deferReply();
+
+        const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
+        const queue: IQueue[] = serverData.queue;
 
         if (queue.length === 0) {
             return await interaction.editReply({

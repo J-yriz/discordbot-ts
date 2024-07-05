@@ -1,7 +1,7 @@
 import App from "../../utils/discordBot";
 import { playSong } from "./play";
 import { looping } from "./loop";
-import { MusicDiscord, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
 import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, GuildMember } from "discord.js";
 
 const skip = {
@@ -11,11 +11,9 @@ const skip = {
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
-        const guild: GuildMember = interaction.guild?.members.cache.get(interaction.user.id) as GuildMember;
-        const userVoice: string = guild?.voice.channel?.id as string;
+        const userVoice: string = checkVoice(interaction);
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
         const connect = serverData.connection(userVoice, interaction);
-        const playerBot = serverData.playerBot();
 
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
@@ -31,7 +29,7 @@ const skip = {
             embeds: [new EmbedBuilder().setTitle("Success").setDescription(`Skip music ${serverData.queue[0].title}`).setColor("Green")],
         });
         serverData.queue.shift();
-        playSong(serverData, playerBot, interaction, app, userVoice, connect);
+        playSong(interaction, app, userVoice, connect);
     },
 };
 

@@ -1,6 +1,6 @@
 import App from "../../utils/discordBot";
 import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, GuildMember } from "discord.js";
-import { MusicDiscord, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
 import { durationMusic } from "./play";
 
 const nowplaying = {
@@ -10,9 +10,7 @@ const nowplaying = {
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
-        const guild: GuildMember = interaction.guild?.members.cache.get(interaction.user.id) as GuildMember;
-        const userVoice: string = guild?.voice.channel?.id as string;
-
+        const userVoice: string = checkVoice(interaction);
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
@@ -28,7 +26,8 @@ const nowplaying = {
         await interaction.reply({
             embeds: [
                 new EmbedBuilder()
-                    .setTitle(`Now Playing ${queue[0].title}`)
+                    .setAuthor({ name: "Now Playing" })
+                    .setTitle(`${queue[0].title}`)
                     .setURL(queue[0].uri)
                     .addFields(
                         { name: "Author Music", value: `${queue[0].author}`, inline: true },

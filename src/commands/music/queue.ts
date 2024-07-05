@@ -1,6 +1,6 @@
 import App from "../../utils/discordBot";
-import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, GuildMember } from "discord.js";
-import { MusicDiscord, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from "discord.js";
+import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
 
 const queueMusic = {
     data: new SlashCommandBuilder()
@@ -9,9 +9,7 @@ const queueMusic = {
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
-        const guild: GuildMember = interaction.guild?.members.cache.get(interaction.user.id) as GuildMember;
-        const userVoice: string = guild?.voice.channel?.id as string;
-
+        const userVoice: string = checkVoice(interaction);
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
