@@ -5,7 +5,7 @@ import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder }
 const join = {
     data: new SlashCommandBuilder()
         .setName("join")
-        .setDescription("Join the voice channel")
+        .setDescription("Masuk ke voice channel.")
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {

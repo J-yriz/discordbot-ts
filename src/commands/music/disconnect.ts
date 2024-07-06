@@ -7,7 +7,7 @@ import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder }
 const disconnect = {
     data: new SlashCommandBuilder()
         .setName("disconnect")
-        .setDescription("Disconnect the bot from the voice channel")
+        .setDescription("Mengeluarkan bot dari voice channel.")
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { Collection, Client, GatewayIntentBits, ChatInputCommandInteraction, ButtonInteraction, StringSelectMenuInteraction } from "discord.js";
+import { Collection, Client, GatewayIntentBits, ChatInputCommandInteraction, ButtonInteraction, StringSelectMenuInteraction, ApplicationCommandType } from "discord.js";
 
 export interface Command {
     data: {
@@ -21,7 +21,6 @@ export interface StringSelect {
 }
 
 export default class App extends Client {
-    
     commandsCollection: Collection<string, Command> = new Collection<string, Command>();
     buttonsCollection: Collection<string, Button> = new Collection<string, Button>();
     stringSelectCollection: Collection<string, StringSelect> = new Collection<string, StringSelect>();

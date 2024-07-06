@@ -1,9 +1,8 @@
 import fs from "fs";
 import path from "path";
-import App from "../utils/discordBot";
+import App, { Command, Button, StringSelect } from "../utils/discordBot";
 import { MusicDiscord, dataServer } from "../utils/musicDiscord";
 import { Events, EmbedBuilder } from "discord.js";
-
 const InteractionCreate = (app: App, token: string, commands: any[]): void => {
     app.on(Events.InteractionCreate, async (interaction) => {
         const embed = new EmbedBuilder()
@@ -14,8 +13,12 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
             .setTimestamp();
 
         if (interaction.isCommand()) {
+            const waktu = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
             const musicCommands = path.join(__dirname, "../commands/music");
             const musicCommandName = fs.readdirSync(musicCommands);
+
+            console.log(`[${waktu}] ${interaction.user.tag} menggunakan command ${interaction.commandName}`);
+            
             if (musicCommandName.includes(`${interaction.commandName}.js`)) {
                 if (!dataServer.get(interaction.guildId as string)) {
                     const dataNewPlayer: MusicDiscord = new MusicDiscord();
@@ -24,7 +27,7 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
             }
 
             const { commandName } = interaction;
-            const command: any = app.commandsCollection.get(commandName);
+            const command: any = app.commandsCollection.get(commandName) as Command;
             if (!command) return;
 
             try {
@@ -37,7 +40,7 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
                 });
             }
         } else if (interaction.isButton()) {
-            const button = app.buttonsCollection.get(interaction.customId);
+            const button: Button = app.buttonsCollection.get(interaction.customId) as Button;
             if (!button) return;
 
             try {
@@ -50,7 +53,7 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
                 });
             }
         } else if (interaction.isStringSelectMenu()) {
-            const selectString = app.stringSelectCollection.get(interaction.customId);
+            const selectString: StringSelect = app.stringSelectCollection.get(interaction.customId) as StringSelect;
             if (!selectString) return;
 
             try {

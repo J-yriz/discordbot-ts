@@ -6,15 +6,15 @@ import {
     SlashCommandBuilder,
     PermissionFlagsBits,
     ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
+    Message,
     EmbedBuilder,
 } from "discord.js";
 import { durationMusic } from "./play";
-import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { checkVoice, noVoiceChannel } from "../../utils/musicDiscord";
 import { ITrackGet } from "../../utils/interface";
 import trackGet from "../../api/lavalink/trackGet";
 
+export let responseChat: Message<boolean>;
 const search = {
     data: new SlashCommandBuilder()
         .setName("search")
@@ -30,7 +30,12 @@ const search = {
 
         const options = trackGetData.map((e: ITrackGet, i: number): StringSelectMenuOptionBuilder => {
             return new StringSelectMenuOptionBuilder()
-                .setLabel(`${i + 1}. ${e.info.title}`)
+                .setLabel(
+                    `${i + 1}. ${e.info.title}`
+                        .replace(/#\w+/g, "")
+                        .replace(/\s{2,}/g, " ")
+                        .trim()
+                )
                 .setDescription(`${durationMusic(e.info.length)} | ${e.info.author}`)
                 .setValue(`${e.info.uri},${e.info.length}`);
         });
@@ -42,11 +47,17 @@ const search = {
         const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMusic);
 
         try {
-            await interaction.deferReply();
-            interaction.reply({
+            await interaction.deferReply({ fetchReply: true });
+            responseChat = await interaction.editReply({
                 content: "Pilih salah satu lagu di bawah ini:",
                 components: [row],
             });
+            try {
+                const filter = (i: any) => i.user.id === interaction.user.id;
+                await responseChat.awaitMessageComponent({ filter, time: 30000 });
+            } catch (e) {
+                await interaction.deleteReply();
+            }
         } catch (error) {
             console.error(error);
         }

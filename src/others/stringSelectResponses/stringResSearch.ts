@@ -5,6 +5,7 @@ import { checkVoice, dataServer } from "../../utils/musicDiscord";
 import { IQueue } from "../../utils/interface";
 import { MusicDiscord } from "../../utils/musicDiscord";
 import App from "../../utils/discordBot";
+import { responseChat } from "../../commands/music/search";
 
 const selectMusic = {
     customId: "selectMusic",
@@ -28,7 +29,8 @@ const selectMusic = {
             const connect = serverData.connection(userVoice, interaction);
             playSong(interaction, app, userVoice, connect);
         } else {
-            await interaction.reply({
+            await responseChat.edit({
+                content: "",
                 embeds: [
                     new EmbedBuilder()
                         .setAuthor({ name: "Music ditambahkan ke antrian." })
@@ -37,6 +39,7 @@ const selectMusic = {
                         .setColor("Green")
                         .setTimestamp(),
                 ],
+                components: [],
             });
         }
     },

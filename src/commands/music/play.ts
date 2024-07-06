@@ -6,6 +6,7 @@ import { IQueue, ITrackGet } from "../../utils/interface";
 import { looping, changeLoop } from "./loop";
 import trackGet from "../../api/lavalink/trackGet";
 import { playTrack } from "../../api/lavalink/ytdl";
+import { responseChat } from "./search";
 
 const play = {
     data: new SlashCommandBuilder()
@@ -82,6 +83,7 @@ export const playSong = async (
     playerBot.stop();
     playerBot.play(resourceMusic);
     connect.subscribe(playerBot);
+
     const embed = new EmbedBuilder()
         .setAuthor({ name: "Now playing" })
         .setTitle(nextTrack.title)
@@ -98,7 +100,11 @@ export const playSong = async (
         .setTimestamp();
 
     if (firstPlay === 0) {
-        await interaction.editReply({ embeds: [embed] });
+        if (responseChat) {
+            responseChat.edit({ content: '', embeds: [embed], components: []});
+        } else {
+            await interaction.editReply({ embeds: [embed] });
+        }
         firstPlay++;
     } else {
         await interaction.channel?.send({ embeds: [embed] });

@@ -1,6 +1,5 @@
 import App from "../../utils/discordBot";
 import { playSong } from "./play";
-import { looping } from "./loop";
 import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
 import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, GuildMember } from "discord.js";
 
