@@ -31,7 +31,7 @@ const search = {
         const options = trackGetData.map((e: ITrackGet, i: number): StringSelectMenuOptionBuilder => {
             return new StringSelectMenuOptionBuilder()
                 .setLabel(`${i + 1}. ${e.info.title}`)
-                .setDescription(e.info.author)
+                .setDescription(`${durationMusic(e.info.length)} | ${e.info.author}`)
                 .setValue(`${e.info.uri},${e.info.length}`);
         });
         const selectMusic = new StringSelectMenuBuilder()
@@ -40,23 +40,11 @@ const search = {
             .addOptions(options);
 
         const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMusic);
-        const embed: EmbedBuilder = new EmbedBuilder()
-            .setTitle("Result Search Music")
-            .addFields(
-                trackGetData.map((e: ITrackGet, i: number) => {
-                    return {
-                        name: `${i + 1}. ${e.info.title}`,
-                        value: `Author: ${e.info.author}\nDuration: ${durationMusic(e.info.length)}`,
-                    };
-                })
-            )
-            .setColor("Random");
 
         try {
             await interaction.deferReply();
-            interaction.editReply({
-                content: "Pilih salah satu dari opsi di bawah ini:",
-                embeds: [embed],
+            interaction.reply({
+                content: "Pilih salah satu lagu di bawah ini:",
                 components: [row],
             });
         } catch (error) {

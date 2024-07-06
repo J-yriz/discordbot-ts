@@ -26,7 +26,6 @@ const selectMusic = {
 
         if (serverData.queue.length === 1) {
             const connect = serverData.connection(userVoice, interaction);
-            await interaction.deferReply();
             playSong(interaction, app, userVoice, connect);
         } else {
             await interaction.reply({
