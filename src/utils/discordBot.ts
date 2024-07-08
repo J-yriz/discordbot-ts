@@ -24,7 +24,7 @@ export default class App extends Client {
     commandsCollection: Collection<string, Command> = new Collection<string, Command>();
     buttonsCollection: Collection<string, Button> = new Collection<string, Button>();
     stringSelectCollection: Collection<string, StringSelect> = new Collection<string, StringSelect>();
-    commands: {} = [];
+    commands: any[] = [];
 
     constructor() {
         super({

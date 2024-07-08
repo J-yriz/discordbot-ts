@@ -43,9 +43,11 @@ const play = {
 
         if (serverData.queue.length === 1) {
             const connect: VoiceConnection = serverData.connection(userVoice, interaction);
+            await interaction.editReply({ content: "Memutar music..." });
             playSong(interaction, app, userVoice, connect);
         } else {
             await interaction.editReply({
+                content: "",
                 embeds: [
                     new EmbedBuilder()
                         .setAuthor({ name: "Music ditambahkan ke antrian." })
@@ -100,10 +102,12 @@ export const playSong = async (
         .setTimestamp();
 
     if (firstPlay === 0) {
+        // from search
         if (responseChat) {
-            responseChat.edit({ content: '', embeds: [embed], components: []});
+            responseChat.edit({ content: "", embeds: [embed], components: [] });
         } else {
-            await interaction.editReply({ embeds: [embed] });
+            // from play
+            await interaction.editReply({ content: "", embeds: [embed] });
         }
         firstPlay++;
     } else {
@@ -114,7 +118,7 @@ export const playSong = async (
     playerBot.removeAllListeners("error");
     playerBot.on("error", async () => {
         await interaction.channel?.send({
-            embeds: [new EmbedBuilder().setTitle("Music Error").setDescription(`Skip music ${queue[0].title}`)],
+            embeds: [new EmbedBuilder().setTitle("Music Error").setDescription(`Skip music ${queue[0].title}`).setColor("DarkRed")],
         });
         serverData.queue.shift();
         if (queue.length > 0) {

@@ -5,7 +5,7 @@ import { IDataResponse, ITrackGet } from "../../utils/interface";
 const trackGet = async (dataMusic: string): Promise<ITrackGet[]> => {
     const trackResponse: IDataResponse = await axios.get(`${lavalink()}/v3/loadtracks`, {
         headers: { Authorization: config.Lavalink.LavaPass },
-        params: { identifier: `ytsearch: ${dataMusic}` },
+        params: { identifier: `ytsearch: ${dataMusic} \((Lyrics|lyrics|lirik)\)` },
     });
     return trackResponse.data.tracks;
 };

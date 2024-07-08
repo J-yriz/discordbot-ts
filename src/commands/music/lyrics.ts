@@ -34,8 +34,13 @@ const lyrics = {
 };
 
 const getLyrics = async (interaction: ChatInputCommandInteraction, queue: IQueue) => {
-    console.log(queue.title.replace(/\s*\(.*?\)\s*/g, '').trim());
-    const search: Song[] = await client.songs.search(queue.title.replace(/\s*\(.*?\)\s*/g, '').trim());
+    const songTitle = queue.title
+        .replace(/#\w+/g, "")
+        .replace(/\s{2,}/g, " ")
+        .replace(/\s*[\(\[\{].*?[\)\]\}]\s*/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim().split("-");
+    const search: Song[] = await client.songs.search(`${songTitle[1]} ${songTitle[0]}`);
     if (search.length === 0) {
         return await interaction.editReply({
             embeds: [
