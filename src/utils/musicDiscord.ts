@@ -14,7 +14,8 @@ import { Readable } from "stream";
 export class MusicDiscord {
     original: IQueue[] = [];
     shuffle: IQueue[] = [];
-    queue: IQueue[] = [];
+    prevQueue: IQueue[] = [];
+    nextQueue: IQueue[] = [];
 
     connection(userVoice: string, interaction: ChatInputCommandInteraction | StringSelectMenuInteraction): VoiceConnection {
         return joinVoiceChannel({
