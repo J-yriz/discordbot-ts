@@ -21,15 +21,16 @@ const selectMusic = {
             length: Number(value[1]),
         };
 
-        const dataServerGet = dataServer.get(interaction.guildId as string);
-        dataServerGet?.queue.push(track);
-        const serverData: MusicDiscord = dataServerGet as MusicDiscord;
+        const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
+        serverData?.nextQueue.push(track);
 
-        if (serverData.queue.length === 1) {
+        responseChat.delete();
+        await interaction.deferReply();
+        if (serverData.nextQueue.length === 1) {
             const connect = serverData.connection(userVoice, interaction);
             playSong(interaction, app, userVoice, connect);
         } else {
-            await responseChat.edit({
+            await interaction.editReply({
                 content: "",
                 embeds: [
                     new EmbedBuilder()
