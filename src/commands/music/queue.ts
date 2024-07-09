@@ -13,7 +13,7 @@ const queueMusic = {
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
-        const queue = serverData.queue;
+        const queue = serverData.nextQueue;
 
         if (queue.length === 0) {
             return await interaction.reply({

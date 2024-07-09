@@ -4,10 +4,10 @@ import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../util
 import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, GuildMember } from "discord.js";
 import { firstResponse, nextResponse } from "./play";
 
-const skip = {
+const previus = {
     data: new SlashCommandBuilder()
-        .setName("skip")
-        .setDescription("Skip music yang sedang diputar")
+        .setName("prev")
+        .setDescription("Mainkan music sebelumnya")
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
@@ -17,23 +17,23 @@ const skip = {
 
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
-        if (serverData.nextQueue.length === 0)
+        if (serverData.prevQueue.length === 0)
             return await interaction.reply({
-                content: `Tidak ada music yang sedang diputar`,
+                content: `Tidak ada music sebelumnya`,
                 ephemeral: true,
             });
-
-        if (serverData.nextQueue.length === 1) return await interaction.reply({ content: `Tidak ada antrian music`, ephemeral: true });
 
         if (nextResponse) nextResponse.delete();
         else if (firstResponse) firstResponse.delete();
         await interaction.reply({
-            embeds: [new EmbedBuilder().setTitle("Success").setDescription(`Main music selanjutnya ${serverData.nextQueue[0].title}`).setColor("Green")],
+            embeds: [
+                new EmbedBuilder().setTitle("Success").setDescription(`Mainkan music sebelumnya ${serverData.prevQueue[0].title}`).setColor("Green"),
+            ],
         });
-        serverData.prevQueue.push(serverData.nextQueue[0]);
-        serverData.nextQueue.shift();
+        serverData.nextQueue.unshift(serverData.prevQueue[0]);
+        serverData.prevQueue.shift();
         playSong(interaction, app, userVoice, connect);
     },
 };
 
-export default skip;
+export default previus;

@@ -1,7 +1,7 @@
 import App from "../../utils/discordBot";
-import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from "discord.js";
 import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
-import { AudioPlayer } from "@discordjs/voice";
+import { playerBot } from "./play";
 
 const resume = {
     data: new SlashCommandBuilder()
@@ -15,10 +15,13 @@ const resume = {
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
-        const playerBot: AudioPlayer = serverData.playerBot();
 
         playerBot.unpause();
-        await interaction.reply({ content: "Resume music", ephemeral: true });
+        if (playerBot.state.status !== "playing") return;
+        await interaction.reply({ embeds: [new EmbedBuilder().setTitle(`${serverData.nextQueue[0].title} Berhasil di resume.`)] });
+        setTimeout(() => {
+            interaction.deleteReply();
+        }, 60000);
     },
 };
 

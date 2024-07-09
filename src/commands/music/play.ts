@@ -1,6 +1,16 @@
 import App from "../../utils/discordBot";
 import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
-import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, StringSelectMenuInteraction } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    PermissionFlagsBits,
+    SlashCommandBuilder,
+    EmbedBuilder,
+    StringSelectMenuInteraction,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    Message,
+} from "discord.js";
 import { AudioPlayer, AudioPlayerStatus, AudioResource, VoiceConnection } from "@discordjs/voice";
 import { IQueue, ITrackGet } from "../../utils/interface";
 import { looping, changeLoop } from "./loop";
@@ -8,6 +18,7 @@ import trackGet from "../../api/lavalink/trackGet";
 import { playTrack } from "../../api/lavalink/ytdl";
 import { responseChat } from "./search";
 
+let firstPlay: number = 0;
 const play = {
     data: new SlashCommandBuilder()
         .setName("play")
@@ -37,14 +48,14 @@ const play = {
             length: trackGetInfo.length,
         };
 
-        const dataServerGet = dataServer.get(interaction.guildId as string);
-        dataServerGet?.queue.push(track);
-        const serverData: MusicDiscord = dataServerGet as MusicDiscord;
+        const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
+        serverData.nextQueue.push(track);
 
-        if (serverData.queue.length === 1) {
+        if (serverData.nextQueue.length === 1) {
             const connect: VoiceConnection = serverData.connection(userVoice, interaction);
             await interaction.editReply({ content: "Memutar music..." });
-            playSong(interaction, app, userVoice, connect);
+            firstPlay = 0;
+            playSong( interaction, app, userVoice, connect);
         } else {
             await interaction.editReply({
                 content: "",
@@ -70,7 +81,9 @@ export function durationMusic(durasi: number): string {
     return `${jam}:${menit}`;
 }
 
-let firstPlay: number = 0;
+export let firstResponse: Message<boolean>;
+export let nextResponse: Message<boolean>;
+export let playerBot: AudioPlayer;
 export const playSong = async (
     interaction: ChatInputCommandInteraction | StringSelectMenuInteraction,
     app: App,
@@ -78,17 +91,22 @@ export const playSong = async (
     connect: VoiceConnection
 ): Promise<void> => {
     const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
-    const queue: IQueue[] = serverData.queue;
+    playerBot = serverData.playerBot();
+    const queue: IQueue[] = serverData.nextQueue;
     const nextTrack: IQueue = queue[0];
     const resourceMusic: AudioResource = serverData.resource(playTrack(nextTrack.uri));
-    const playerBot: AudioPlayer = serverData.playerBot();
     playerBot.stop();
     playerBot.play(resourceMusic);
     connect.subscribe(playerBot);
 
     const embed = new EmbedBuilder()
-        .setAuthor({ name: "Now playing" })
-        .setTitle(nextTrack.title)
+        .setAuthor({ name: `${interaction.guild?.name} • Now playing` })
+        .setTitle(
+            nextTrack.title
+                .replace(/#\w+/g, "")
+                .replace(/\s{2,}/g, " ")
+                .trim()
+        )
         .setURL(nextTrack.uri)
         .addFields(
             { name: "Author Music", value: `${nextTrack.author}`, inline: true },
@@ -98,38 +116,58 @@ export const playSong = async (
                 inline: true,
             }
         )
+        .setThumbnail(interaction.guild?.iconURL() as string)
         .setColor("Red")
         .setTimestamp();
 
+    const nextButton: ButtonBuilder = new ButtonBuilder().setCustomId("next").setStyle(ButtonStyle.Secondary).setEmoji("⏭️");
+    const prevButton: ButtonBuilder = new ButtonBuilder().setCustomId("prev").setStyle(ButtonStyle.Secondary).setEmoji("⏮️");
+    const pauseButton: ButtonBuilder = new ButtonBuilder().setCustomId("pause").setStyle(ButtonStyle.Secondary).setEmoji("⏸️");
+    const resumeButton: ButtonBuilder = new ButtonBuilder().setCustomId("resume").setStyle(ButtonStyle.Secondary).setEmoji("▶️");
+    const lyricsButton: ButtonBuilder = new ButtonBuilder().setCustomId("lyrics").setStyle(ButtonStyle.Secondary).setEmoji("📜");
+    const loopButton: ButtonBuilder = new ButtonBuilder().setCustomId("loop").setStyle(ButtonStyle.Secondary).setEmoji("🔁");
+    const queueButton: ButtonBuilder = new ButtonBuilder().setCustomId("queue").setStyle(ButtonStyle.Secondary).setEmoji("📋");
+    const shuffleButton: ButtonBuilder = new ButtonBuilder().setCustomId("shuffle").setStyle(ButtonStyle.Secondary).setEmoji("🔀");
+    const row: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        prevButton,
+        pauseButton,
+        resumeButton,
+        nextButton
+    );
+    const row1: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        lyricsButton,
+        loopButton,
+        queueButton,
+        shuffleButton
+    );
+
     if (firstPlay === 0) {
-        // from search
-        if (responseChat) {
-            responseChat.edit({ content: "", embeds: [embed], components: [] });
-        } else {
-            // from play
-            await interaction.editReply({ content: "", embeds: [embed] });
-        }
+        firstResponse = await interaction.editReply({ content: "", embeds: [embed], components: [row, row1] });
         firstPlay++;
     } else {
-        await interaction.channel?.send({ embeds: [embed] });
+        nextResponse = await interaction.channel?.send({ content: "", embeds: [embed], components: [row, row1] }) as Message<boolean>;
     }
 
     // Don't remove this if u see this error
-    playerBot.removeAllListeners("error");
+    (playerBot as any).removeAllListeners("error");
     playerBot.on("error", async () => {
+        if (nextResponse) nextResponse.delete();
+        else if (firstResponse) firstResponse.delete();
         await interaction.channel?.send({
             embeds: [new EmbedBuilder().setTitle("Music Error").setDescription(`Skip music ${queue[0].title}`).setColor("DarkRed")],
         });
-        serverData.queue.shift();
+        serverData.nextQueue.shift();
         if (queue.length > 0) {
             playSong(interaction, app, userVoice, connect);
         }
     });
 
     // Don't remove this if u see this error
-    playerBot.removeAllListeners(AudioPlayerStatus.Idle);
+    (playerBot as any).removeAllListeners(AudioPlayerStatus.Idle);
     playerBot.on(AudioPlayerStatus.Idle, async () => {
-        if (!looping) serverData.queue.shift();
+        if (!looping) serverData.nextQueue.shift();
+        if (nextResponse) nextResponse.delete();
+        else if (firstResponse) firstResponse.delete();
         if (queue.length > 0) {
             playSong(interaction, app, userVoice, connect);
         } else {

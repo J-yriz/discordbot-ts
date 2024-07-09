@@ -19,7 +19,7 @@ const lyrics = {
         await interaction.deferReply();
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
-        const queue: IQueue[] = serverData.queue;
+        const queue: IQueue[] = serverData.nextQueue;
 
         if (queue.length === 0) {
             return await interaction.editReply({

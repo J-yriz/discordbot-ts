@@ -63,7 +63,7 @@ const search = {
                 await interaction.editReply({ content: "Terlalu lama untuk memilih music, pilihan di hapus", components: [] });
                 setTimeout(() => {
                     interaction.deleteReply();
-                }, 5000);
+                }, 30000);
             }
         } catch (error) {
             console.error(error);

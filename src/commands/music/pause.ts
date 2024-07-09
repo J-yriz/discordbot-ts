@@ -1,7 +1,7 @@
 import App from "../../utils/discordBot";
-import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from "discord.js";
 import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
-import { AudioPlayer } from "@discordjs/voice";
+import { playerBot } from "./play";
 
 const pause = {
     data: new SlashCommandBuilder()
@@ -14,16 +14,21 @@ const pause = {
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
-        const playerBot: AudioPlayer = serverData.playerBot();
 
-        if (serverData.queue.length === 0)
+        if (serverData.nextQueue.length === 0)
             return await interaction.reply({
                 content: `Tidak ada music yang sedang diputar`,
                 ephemeral: true,
             });
 
         playerBot.pause();
-        await interaction.reply({ content: "Pause music", ephemeral: true });
+        if (playerBot.state.status !== "paused") return;
+        await interaction.reply({
+            embeds: [new EmbedBuilder().setTitle(`${serverData.nextQueue[0].title} Berhasil di pause.`)],
+        });
+        setTimeout(() => {
+            interaction.deleteReply();
+        }, 60000);
     },
 };
 
