@@ -20,7 +20,7 @@ const config = {
         LavaPort: 0 || process.env.LAVA_PORT,
         LavaPass: "" || process.env.LAVA_PASS,
         Secure: false, // Set to true if using https or secure connection
-        nodeName: "PetraMel-Node" || process.env.LAVA_NODE_NAME,
+        nodeName: "PetraMel-Node", // Lavalink node name
         autoPlay: false, // Bot plays music automatically when the queue is empty
     },
 };
