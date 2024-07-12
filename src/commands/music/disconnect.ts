@@ -12,7 +12,6 @@ const disconnect = {
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
         const userVoice: string = checkVoice(interaction);
-        if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
 
         if (!playerBot) return await interaction.reply({ content: `Bot tidak sedang terhubung ke voice channel`, ephemeral: true });

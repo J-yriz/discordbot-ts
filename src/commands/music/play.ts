@@ -98,7 +98,7 @@ export const setPlayerBot = (): void => {
 let skipPrevCondition: boolean = false;
 export const setSkipPrevCondition = (condition: boolean): void => {
     skipPrevCondition = condition;
-}
+};
 
 export const playSong = async (
     interaction: ChatInputCommandInteraction | StringSelectMenuInteraction,
@@ -107,11 +107,11 @@ export const playSong = async (
 ): Promise<void> => {
     const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
     playerBot = serverData.playerBot(interaction, app, userVoice);
-    
+
     if (!playerBot.connected) {
         playerBot.connect({ setDeaf: true, setMute: false });
     }
-    
+
     const queue: MoonlinkTrack[] = serverData.nextQueue;
     const nextTrack: MoonlinkTrack = queue[0];
     playerBot.play(nextTrack);
@@ -203,6 +203,24 @@ export const playSong = async (
                 embeds: [new EmbedBuilder().setTitle("Music selesai, bot dikeluarkan.").setColor("LightGrey")],
             });
         }
+    });
+
+    app.lavaClient?.on("nodeClose", async (node) => {
+        console.log(`${node.identifier} telah ditutup!`);
+        playerBot.disconnect();
+        playerBot.destroy();
+        changeLoop(false);
+        dataServer.delete(interaction.guildId as string);
+        await interaction.channel?.send({
+            embeds: [
+                new EmbedBuilder()
+                    .setTitle("Error")
+                    .setDescription("Terjadi Kesalahan pada System Music!")
+                    .setFooter({ text: "Hubungi pembuat dari bot ini malmul_." })
+                    .setColor("DarkRed")
+                    .setTimestamp(),
+            ],
+        });
     });
 };
 

@@ -16,9 +16,9 @@ const config = {
 
     // Lavalink configuration (https://lavalink.darrennathanael.com/)
     Lavalink: {
-        LavaIP: "51.79.152.83" || process.env.LAVA_IP,
-        LavaPort: 10073 || process.env.LAVA_PORT,
-        LavaPass: "testingajah" || process.env.LAVA_PASS,
+        LavaIP: "buses.sleepyinsomniac.eu.org" || process.env.LAVA_IP,
+        LavaPort: 80 || process.env.LAVA_PORT,
+        LavaPass: "youshallnotpass" || process.env.LAVA_PASS,
         Secure: false, // Set to true if using https or secure connection
         nodeName: "PetraMel-Node" || process.env.LAVA_NODE_NAME,
         autoPlay: false, // Bot plays music automatically when the queue is empty
