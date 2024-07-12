@@ -21,8 +21,8 @@ const pause = {
                 ephemeral: true,
             });
 
+        if (playerBot.paused) return await interaction.reply({ embeds: [new EmbedBuilder().setTitle(`${serverData.nextQueue[0].title} Sudah terpause.`)], ephemeral: true });
         playerBot.pause();
-        if (playerBot.state.status !== "paused") return;
         await interaction.reply({
             embeds: [new EmbedBuilder().setTitle(`${serverData.nextQueue[0].title} Berhasil di pause.`)],
         });

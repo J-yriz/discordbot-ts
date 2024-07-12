@@ -1,7 +1,7 @@
 import App from "../../utils/discordBot";
 import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from "discord.js";
 import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
-import { IQueue } from "../../utils/interface";
+import { MoonlinkTrack } from "moonlink.js";
 
 let shuffleMode: boolean = false;
 const shuffle = {
@@ -15,7 +15,7 @@ const shuffle = {
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
-        const queue = serverData.nextQueue;
+        const queue: MoonlinkTrack[] = serverData.nextQueue;
 
         if (queue.length === 0) {
             return await interaction.reply({
@@ -34,7 +34,7 @@ const shuffle = {
         if (!shuffleMode) {
             shuffleMode = true;
             serverData.original = [...queue.slice(1)];
-            const nowPlay: IQueue = queue.shift() as IQueue;
+            const nowPlay: MoonlinkTrack = queue.shift() as MoonlinkTrack;
             for (let i = queue.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [queue[i], queue[j]] = [queue[j], queue[i]];

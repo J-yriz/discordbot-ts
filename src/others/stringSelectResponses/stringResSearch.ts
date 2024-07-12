@@ -1,34 +1,27 @@
 import { StringSelectMenuInteraction, GuildMember, EmbedBuilder } from "discord.js";
-import { getDetailVideo } from "../../api/lavalink/ytdl";
-import { playSong } from "../../commands/music/play";
 import { checkVoice, dataServer } from "../../utils/musicDiscord";
-import { IQueue } from "../../utils/interface";
 import { MusicDiscord } from "../../utils/musicDiscord";
 import App from "../../utils/discordBot";
+import { playSong } from "../../commands/music/play";
 import { responseChat } from "../../commands/music/search";
+import { SearchResult } from "moonlink.js";
 
 const selectMusic = {
     customId: "selectMusic",
     async exec(interaction: StringSelectMenuInteraction, app: App) {
-        const value: string[] = interaction.values[0].split(",");
-        const response = await getDetailVideo(value[0]);
+        const query: string = interaction.values[0];
         const userVoice: string = checkVoice(interaction);
+        const res: SearchResult = (await app.lavaClient?.search({ query, source: "youtube", requester: interaction.user.id })) as SearchResult;
 
-        const track: IQueue = {
-            title: response.title,
-            uri: value[0],
-            author: response.author,
-            length: Number(value[1]),
-        };
+        const track = res.tracks[0];
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
-        serverData?.nextQueue.push(track);
+        serverData.nextQueue.push(track);
 
         responseChat.delete();
         await interaction.deferReply();
         if (serverData.nextQueue.length === 1) {
-            const connect = serverData.connection(userVoice, interaction);
-            playSong(interaction, app, userVoice, connect);
+            playSong(interaction, app, userVoice);
         } else {
             await interaction.editReply({
                 content: "",
@@ -36,7 +29,7 @@ const selectMusic = {
                     new EmbedBuilder()
                         .setAuthor({ name: "Music ditambahkan ke antrian." })
                         .setTitle(track.title)
-                        .setURL(track.uri)
+                        .setURL(track.url)
                         .setColor("Green")
                         .setTimestamp(),
                 ],

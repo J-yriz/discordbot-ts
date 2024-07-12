@@ -4,7 +4,7 @@ import App, { Command } from "../../utils/discordBot";
 import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from "discord.js";
 
 import config from "../../config";
-import regisSlashCommand from "../../events/regisSlashCommand";
+import regisSlashCommand from "../../events/app/regisSlashCommand";
 const { Token } = config;
 
 const reload = {

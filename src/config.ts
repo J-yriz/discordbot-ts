@@ -1,33 +1,28 @@
 import "dotenv/config";
 
 const config = {
-    // Your bot's
+    // Bot configuration
     Token: "" || process.env.DISCORD_TOKEN,
     ClientID: "" || process.env.DISCORD_CLIENT_ID,
     ClientSecret: "" || process.env.DISCORD_CLIENT_SECRET,
-    // Genius API Token from https://docs.genius.com/
-    GeniusToken: "" || process.env.GENIUS_TOKEN,
-    // You can get this from https://lavalink.darrennathanael.com/
+
+    // Genius API settings for lyrics [default: YouTube / Musixmatch]
+    LyricsEngine: {
+        // Recommended: Use Genius API for lyrics [BECAUSE IT'S BETTER]
+        UseGenius: true, // Use Genius API for lyrics [NOTE: IF YOU SET THIS TO TRUE, YOU NEED TO PROVIDE GENIUS TOKEN BELOW]
+        GeniusToken: "" || process.env.GENIUS_TOKEN, // Your Genius API Token
+        ForceSearch: true, // Retry lyrics search on another engine if the first fails
+    },
+
+    // Lavalink configuration (https://lavalink.darrennathanael.com/)
     Lavalink: {
-        // Type link but without http:// or https:// and ws:// or wss://
-        LavaIP: "lava-v3.ajieblogs.eu.org" || process.env.LAVA_IP,
-        LavaPort: 443 || process.env.LAVA_PORT,
-        LavaPass: "https://dsc.gg/ajidevserver" || process.env.LAVA_PASS,
-        Secure: true, // If you're using https, set this to true
+        LavaIP: "51.79.152.83" || process.env.LAVA_IP,
+        LavaPort: 10073 || process.env.LAVA_PORT,
+        LavaPass: "testingajah" || process.env.LAVA_PASS,
+        Secure: false, // Set to true if using https or secure connection
+        nodeName: "PetraMel-Node" || process.env.LAVA_NODE_NAME,
+        autoPlay: false, // Bot plays music automatically when the queue is empty
     },
 };
-
-// Please don't touch this
-export function lavalink(): string {
-    const { LavaIP, LavaPort, Secure } = config.Lavalink;
-
-    if ( !LavaIP || !LavaPort || !Secure ) throw new Error("Please fill the Lavalink config");
-
-    if (Secure) {
-        return `https://${LavaIP}:${LavaPort}`;
-    } else {
-        return `http://${LavaIP}:${LavaPort}`;
-    }
-}
 
 export default config;

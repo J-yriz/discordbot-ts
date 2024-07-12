@@ -1,4 +1,4 @@
-import config from "../config";
+import config from "../../config";
 import { REST, Routes } from "discord.js";
 
 const clientID: any = config.ClientID;

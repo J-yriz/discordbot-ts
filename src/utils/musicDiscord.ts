@@ -1,40 +1,22 @@
-import {
-    joinVoiceChannel,
-    createAudioPlayer,
-    createAudioResource,
-    NoSubscriberBehavior,
-    AudioResource,
-    AudioPlayer,
-    VoiceConnection,
-} from "@discordjs/voice";
+import App from "./discordBot";
+import { MoonlinkPlayer, MoonlinkTrack } from "moonlink.js";
 import { ChatInputCommandInteraction, EmbedBuilder, StringSelectMenuInteraction } from "discord.js";
-import { IQueue } from "./interface";
-import { Readable } from "stream";
+import config from "../config";
 
-export class MusicDiscord {
-    original: IQueue[] = [];
-    shuffle: IQueue[] = [];
-    prevQueue: IQueue[] = [];
-    nextQueue: IQueue[] = [];
+export class MusicDiscord extends App {
+    original: MoonlinkTrack[] = [];
+    shuffle: MoonlinkTrack[] = [];
+    prevQueue: MoonlinkTrack[] = [];
+    nextQueue: MoonlinkTrack[] = [];
 
-    connection(userVoice: string, interaction: ChatInputCommandInteraction | StringSelectMenuInteraction): VoiceConnection {
-        return joinVoiceChannel({
-            channelId: userVoice,
+    playerBot(interaction: ChatInputCommandInteraction | StringSelectMenuInteraction, app: App, userVoice: string): MoonlinkPlayer {
+        return app.lavaClient?.players.create({
             guildId: interaction.guildId as string,
-            adapterCreator: interaction.guild?.voiceAdapterCreator as any,
-        });
-    }
-
-    resource(track: Readable): AudioResource {
-        return createAudioResource(track, { inlineVolume: true });
-    }
-
-    playerBot(): AudioPlayer {
-        return createAudioPlayer({
-            behaviors: {
-                noSubscriber: NoSubscriberBehavior.Pause,
-            },
-        });
+            voiceChannel: userVoice,
+            textChannel: interaction.channelId,
+            autoPlay: config.Lavalink.autoPlay,
+            volume: 100,
+        }) as MoonlinkPlayer;
     }
 }
 

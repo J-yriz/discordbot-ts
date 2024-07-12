@@ -1,6 +1,7 @@
 import App from "../../utils/discordBot";
 import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from "discord.js";
 import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { MoonlinkTrack } from "moonlink.js";
 
 const queueMusic = {
     data: new SlashCommandBuilder()
@@ -13,7 +14,7 @@ const queueMusic = {
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
-        const queue = serverData.nextQueue;
+        const queue: MoonlinkTrack[] = serverData.nextQueue;
 
         if (queue.length === 0) {
             return await interaction.reply({
@@ -30,7 +31,7 @@ const queueMusic = {
         }
 
         const dataQueue = queue.map((e, i) => {
-            return { name: `${e.title} | Posisi ${i}`, value: e.uri, inline: false };
+            return { name: `${e.title} | Posisi ${i}`, value: e.url, inline: false };
         });
 
         dataQueue.shift();

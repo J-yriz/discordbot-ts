@@ -1,8 +1,9 @@
 import fs from "fs";
 import path from "path";
-import App, { Command, Button, StringSelect } from "../utils/discordBot";
-import { MusicDiscord, dataServer } from "../utils/musicDiscord";
+import App, { Command, Button, StringSelect } from "../../utils/discordBot";
+import { MusicDiscord, dataServer } from "../../utils/musicDiscord";
 import { Events, EmbedBuilder } from "discord.js";
+
 const InteractionCreate = (app: App, token: string, commands: any[]): void => {
     app.on(Events.InteractionCreate, async (interaction) => {
         const embed = new EmbedBuilder()
@@ -14,7 +15,7 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
 
         if (interaction.isCommand()) {
             const waktu = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
-            const musicCommands = path.join(__dirname, "../commands/music");
+            const musicCommands = path.join(__dirname, "../../commands/music");
             const musicCommandName = fs.readdirSync(musicCommands);
 
             console.log(`[${waktu}] ${interaction.user.tag} menggunakan command ${interaction.commandName}`);

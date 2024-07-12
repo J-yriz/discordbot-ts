@@ -16,8 +16,8 @@ const resume = {
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
 
-        playerBot.unpause();
-        if (playerBot.state.status !== "playing") return;
+        if (!playerBot.paused) return await interaction.reply({ embeds: [new EmbedBuilder().setTitle(`${serverData.nextQueue[0].title} Sedang diputar.`)], ephemeral: true });
+        playerBot.resume();
         await interaction.reply({ embeds: [new EmbedBuilder().setTitle(`${serverData.nextQueue[0].title} Berhasil di resume.`)] });
         setTimeout(() => {
             interaction.deleteReply();
