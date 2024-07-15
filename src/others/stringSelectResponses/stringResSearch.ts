@@ -21,7 +21,7 @@ const selectMusic = {
         responseChat.delete();
         await interaction.deferReply();
         if (serverData.nextQueue.length === 1) {
-            playSong(interaction, app, userVoice);
+            playSong(interaction, app, userVoice, serverData);
         } else {
             await interaction.editReply({
                 content: "",
