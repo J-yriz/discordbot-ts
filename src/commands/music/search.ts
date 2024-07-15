@@ -26,10 +26,12 @@ const search = {
             const query: string = interaction.options.getString("song") as string;
             const res: SearchResult = (await app.lavaClient?.search({ query, source: "youtube", requester: interaction.user.id })) as SearchResult;
             const trackGetData: MoonlinkTrack[] = res.tracks.slice(0, 5);
-
+            
             const userVoice: string = checkVoice(interaction);
             if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
-
+            
+            if (query.includes("https://") && !query.includes("youtube.com")) return await interaction.reply({ content: "Tolong berikan link dari youtube.", ephemeral: true });
+            
             const options = trackGetData.map((e: MoonlinkTrack, i: number): StringSelectMenuOptionBuilder => {
                 let name: string = `${i + 1}. ${e.title}`
                     .replace(/#\w+/g, "")

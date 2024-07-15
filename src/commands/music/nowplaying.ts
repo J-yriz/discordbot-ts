@@ -3,6 +3,7 @@ import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, 
 import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
 import { durationMusic } from "./play";
 import { MoonlinkTrack } from "moonlink.js";
+import { looping } from "./loop";
 
 const nowplaying = {
     data: new SlashCommandBuilder()
@@ -30,9 +31,11 @@ const nowplaying = {
                     .setAuthor({ name: "Now Playing" })
                     .setTitle(`${queue[0].title}`)
                     .setURL(queue[0].url)
+                    .setThumbnail(queue[0].artworkUrl)
                     .addFields(
                         { name: "Author Music", value: `${queue[0].author}`, inline: true },
-                        { name: "Durasi Music", value: `${durationMusic(queue[0].duration)}`, inline: true }
+                        { name: "Durasi Music", value: `${durationMusic(queue[0].duration)}`, inline: true },
+                        { name: "Looping Statis", value: `${looping ? "Aktif" : "Tidak Aktif"}`, inline: true },
                     )
                     .setColor("Red")
                     .setTimestamp(),

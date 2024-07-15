@@ -4,7 +4,6 @@ import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../util
 import { MoonlinkTrack } from "moonlink.js";
 import { find } from "llyrics";
 import config from "../../config";
-import { get } from "http";
 
 const useGenius: boolean = config.LyricsEngine.UseGenius;
 const lyrics = {
@@ -120,15 +119,6 @@ const getLyrics = async (interaction: ChatInputCommandInteraction, queue: Moonli
             getLyrics(interaction, queue);
             trySearch--;
         } else {
-            if (search.engine.toLocaleLowerCase() === "genius") {
-                const hasSections =
-                    lyrics.includes("[Intro]") || lyrics.includes("[Chorus]") || lyrics.includes("[Verse]") || lyrics.includes("[Outro]");
-                if (!hasSections) {
-                    return await interaction.editReply({
-                        embeds: [notFoundEmbed],
-                    });
-                }
-            }
             trySearch = 3;
             return await interaction.editReply({
                 embeds: [

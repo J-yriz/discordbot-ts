@@ -13,7 +13,8 @@ const join = {
         const userVoice: string = checkVoice(interaction);
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
-        serverData.playerBot(interaction, app, userVoice).connect({ setDeaf: true, setMute: false});
+        serverData.playBot = serverData.playerBot(interaction, app, userVoice);
+        serverData.playBot.connect({ setDeaf: true, setMute: false});
         await interaction.reply({ content: `Join to <#${userVoice}>`, ephemeral: true });
     },
 };

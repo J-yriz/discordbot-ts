@@ -1,7 +1,6 @@
 import App from "../../utils/discordBot";
 import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from "discord.js";
 import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
-import { playerBot } from "./play";
 
 const pause = {
     data: new SlashCommandBuilder()
@@ -14,6 +13,7 @@ const pause = {
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
+        const playerBot = serverData.playBot;
 
         if (serverData.nextQueue.length === 0)
             return await interaction.reply({
