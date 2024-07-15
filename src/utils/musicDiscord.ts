@@ -4,10 +4,12 @@ import { ChatInputCommandInteraction, EmbedBuilder, StringSelectMenuInteraction 
 import config from "../config";
 
 export class MusicDiscord extends App {
-    original: MoonlinkTrack[] = [];
-    shuffle: MoonlinkTrack[] = [];
-    prevQueue: MoonlinkTrack[] = [];
-    nextQueue: MoonlinkTrack[] = [];
+    public original: MoonlinkTrack[] = [];
+    public shuffle: MoonlinkTrack[] = [];
+    public prevQueue: MoonlinkTrack[] = [];
+    public nextQueue: MoonlinkTrack[] = [];
+
+    public playBot: MoonlinkPlayer = {} as MoonlinkPlayer;
 
     playerBot(interaction: ChatInputCommandInteraction | StringSelectMenuInteraction, app: App, userVoice: string): MoonlinkPlayer {
         return app.lavaClient?.players.create({

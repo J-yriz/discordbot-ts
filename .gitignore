@@ -9,6 +9,3 @@ package-lock.json
 
 # Compiled folders (customize the path if necessary)
 dist/
-
-# Json server file
-json/

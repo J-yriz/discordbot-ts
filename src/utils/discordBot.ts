@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { MoonlinkManager } from "moonlink.js";
-import { Collection, Client, GatewayIntentBits, ChatInputCommandInteraction, ButtonInteraction, StringSelectMenuInteraction, ApplicationCommandType } from "discord.js";
+import { Collection, Client, GatewayIntentBits, ChatInputCommandInteraction, ButtonInteraction, StringSelectMenuInteraction } from "discord.js";
 
 export interface Command {
     data: {
@@ -27,7 +27,7 @@ export default class App extends Client {
     public stringSelectCollection: Collection<string, StringSelect> = new Collection<string, StringSelect>();
     public commands: any[] = [];
 
-    public lavaClient: MoonlinkManager | undefined;
+    public lavaClient?: MoonlinkManager;
 
     constructor() {
         super({

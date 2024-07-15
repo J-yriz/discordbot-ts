@@ -6,6 +6,14 @@ const config = {
     ClientID: "" || process.env.DISCORD_CLIENT_ID,
     ClientSecret: "" || process.env.DISCORD_CLIENT_SECRET,
 
+    Presence: {
+        Activity: {
+            Name: "Dakwah", // Activity name
+            Type: "LISTENING",    // PLAYING, WATCHING, LISTENING, STREAMING
+        },
+        Status: "Idle", // Online, Idle, DoNotDisturb, Invisible
+    },
+
     // Genius API settings for lyrics [default: YouTube / Musixmatch]
     LyricsEngine: {
         // Recommended: Use Genius API for lyrics [BECAUSE IT'S BETTER]
