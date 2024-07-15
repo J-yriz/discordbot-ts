@@ -7,7 +7,7 @@ const lavalink = (app: App, token: string, commands: any[]) => {
         [
             {
                 host: `${config.Lavalink.LavaIP}`,
-                port: config.Lavalink.LavaPort,
+                port: Number(config.Lavalink.LavaPort),
                 secure: config.Lavalink.Secure,
                 password: `${config.Lavalink.LavaPass}`,
                 identifier: `${config.Lavalink.nodeName}`,

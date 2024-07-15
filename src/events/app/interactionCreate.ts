@@ -13,13 +13,14 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
             .setColor("DarkRed")
             .setTimestamp();
 
+        const waktu = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
         if (interaction.isCommand()) {
-            const waktu = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
             const musicCommands = path.join(__dirname, "../../commands/music");
             const musicCommandName = fs.readdirSync(musicCommands);
 
+            // Show log command
             console.log(`[${waktu}] ${interaction.user.tag} menggunakan command ${interaction.commandName}`);
-            
+
             if (musicCommandName.includes(`${interaction.commandName}.js`)) {
                 if (!dataServer.get(interaction.guildId as string)) {
                     const dataNewPlayer: MusicDiscord = new MusicDiscord();
@@ -44,6 +45,9 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
             const button: Button = app.buttonsCollection.get(interaction.customId) as Button;
             if (!button) return;
 
+            // Show log button
+            console.log(`[${waktu}] ${interaction.user.tag} menggunakan button ${interaction.customId}`);
+
             try {
                 await button.exec(interaction, app);
             } catch (error) {
@@ -56,6 +60,9 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
         } else if (interaction.isStringSelectMenu()) {
             const selectString: StringSelect = app.stringSelectCollection.get(interaction.customId) as StringSelect;
             if (!selectString) return;
+
+            // Show log select
+            console.log(`[${waktu}] ${interaction.user.tag} menggunakan pilihan opsi ${interaction.customId}`);
 
             try {
                 await selectString.exec(interaction, app);
