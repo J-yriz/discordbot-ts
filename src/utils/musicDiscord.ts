@@ -1,14 +1,19 @@
 import App from "./discordBot";
 import { MoonlinkPlayer, MoonlinkTrack } from "moonlink.js";
-import { ChatInputCommandInteraction, EmbedBuilder, StringSelectMenuInteraction } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, StringSelectMenuInteraction, Message } from "discord.js";
 import config from "../config";
 
 export class MusicDiscord extends App {
+    // Queue Music
     public original: MoonlinkTrack[] = [];
     public shuffle: MoonlinkTrack[] = [];
     public prevQueue: MoonlinkTrack[] = [];
     public nextQueue: MoonlinkTrack[] = [];
 
+    // Data and Option Music
+    public firstResponse? : Message<boolean>
+    public nextResponse? : Message<boolean>
+    public interaction: ChatInputCommandInteraction | StringSelectMenuInteraction = {} as ChatInputCommandInteraction | StringSelectMenuInteraction;
     public playBot: MoonlinkPlayer = {} as MoonlinkPlayer;
 
     playerBot(interaction: ChatInputCommandInteraction | StringSelectMenuInteraction, app: App, userVoice: string): MoonlinkPlayer {
