@@ -15,9 +15,10 @@ const lavalink = (app: App, token: string, commands: any[]) => {
         ],
         {},
         (guildId: string, sPayload: any) => {
+            const payLoad = JSON.parse(sPayload);
             const guild = app.guilds.cache.get(guildId);
             if (guild) {
-                guild.shard.send(JSON.parse(sPayload));
+                guild.shard.send(payLoad);
             }
         }
     );

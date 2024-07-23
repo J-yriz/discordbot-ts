@@ -2,20 +2,19 @@ import App from "../../utils/discordBot";
 import { EmbedBuilder } from "discord.js";
 import { dataServer, MusicDiscord } from "../../utils/musicDiscord";
 import { changeLoop } from "../../commands/music/loop";
-import { interactionEx } from "../../commands/music/play";
 
 const nodeClose = (app: App, token: string, commands: any[]) => {
     app.lavaClient?.on("nodeClose", async (node) => {
-        if (interactionEx) {
-            const serverData: MusicDiscord = dataServer.get(interactionEx.guildId as string) as MusicDiscord;
+        for (const key of dataServer.keys()) {
+            const serverData: MusicDiscord = dataServer.get(key) as MusicDiscord;
+            const interaction = serverData.interaction;
             const playerBot = serverData.playBot;
             if (playerBot.connected) {
                 playerBot.disconnect();
                 playerBot.destroy();
             }
             changeLoop(false);
-            dataServer.delete(interactionEx.guildId as string);
-            await interactionEx.channel?.send({
+            await interaction.channel?.send({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle("Error")
@@ -25,6 +24,7 @@ const nodeClose = (app: App, token: string, commands: any[]) => {
                         .setTimestamp(),
                 ],
             });
+            dataServer.delete(key);
         }
         console.log(`${node.identifier} telah ditutup!`);
     });
