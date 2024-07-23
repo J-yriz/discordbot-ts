@@ -9,7 +9,7 @@ import { SearchResult } from "moonlink.js";
 const selectMusic = {
     customId: "selectMusic",
     async exec(interaction: StringSelectMenuInteraction, app: App) {
-        const query: string = interaction.values[0];
+        const query: string = interaction.values[0].split(".")[1].trim();
         const userVoice: string = checkVoice(interaction);
         const res: SearchResult = (await app.lavaClient?.search({ query, source: "youtube", requester: interaction.user.id })) as SearchResult;
 
