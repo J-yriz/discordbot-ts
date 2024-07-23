@@ -25,7 +25,7 @@ const skip = {
 
         if (serverData.nextQueue.length === 1) return await interaction.reply({ content: `Tidak ada antrian music`, ephemeral: true });
 
-        deleteResponse();
+        deleteResponse(serverData);
         await interaction.reply({
             embeds: [
                 new EmbedBuilder().setTitle("Success").setDescription(`Main music selanjutnya ${serverData.nextQueue[1].title}`).setColor("Green"),

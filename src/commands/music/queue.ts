@@ -31,7 +31,7 @@ const queueMusic = {
         }
 
         const dataQueue = queue.map((e, i) => {
-            return { name: `${e.title} | Posisi ${i}`, value: e.url, inline: false };
+            return { name: `Posisi ${i} | ${e.title}`, value: e.url, inline: false };
         });
 
         dataQueue.shift();

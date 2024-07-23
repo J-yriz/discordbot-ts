@@ -1,6 +1,5 @@
 import App from "../../utils/discordBot";
-import { changeLoop } from "./loop";
-import { MusicDiscord, dataServer, checkVoice, noVoiceChannel } from "../../utils/musicDiscord";
+import { MusicDiscord, dataServer, checkVoice } from "../../utils/musicDiscord";
 import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
 const disconnect = {
@@ -16,10 +15,15 @@ const disconnect = {
         if (Object.keys(serverData.playBot).length === 0) return await interaction.reply({ content: `Bot tidak sedang terhubung ke voice channel`, ephemeral: true });
         
         await interaction.reply({ content: `Disconnected from <#${userVoice}>`, ephemeral: true });
-        serverData.nextQueue.length = 0;
-        serverData.prevQueue.length = 0;
-        serverData.playBot.disconnect();
-        serverData.playBot.destroy();
+        if (serverData.nextQueue.length > 0) {
+            serverData.nextQueue.length = 1;
+            serverData.playBot.stop();
+        } else {
+            serverData.nextQueue.length = 0;
+            serverData.playBot.disconnect();
+            serverData.playBot.destroy();
+            dataServer.delete(interaction.guildId as string);
+        }
     },
 };
 

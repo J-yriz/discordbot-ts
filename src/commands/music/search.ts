@@ -6,11 +6,13 @@ import {
     SlashCommandBuilder,
     PermissionFlagsBits,
     ActionRowBuilder,
+    EmbedBuilder,
     Message,
 } from "discord.js";
 import { durationMusic } from "./play";
 import { checkVoice, noVoiceChannel } from "../../utils/musicDiscord";
 import { MoonlinkTrack, SearchResult } from "moonlink.js";
+import config from "../../config";
 
 export let responseChat: Message<boolean>;
 const search = {
@@ -24,14 +26,31 @@ const search = {
         try {
             await interaction.deferReply({ fetchReply: true });
             const query: string = interaction.options.getString("song") as string;
-            const res: SearchResult = (await app.lavaClient?.search({ query, source: "youtube", requester: interaction.user.id })) as SearchResult;
+
+            let res: SearchResult;
+            const node = app.lavaClient?.nodes.get(config.Lavalink.nodeName);
+            if (node.state === "READY") {
+                res = (await app.lavaClient?.search({
+                    query,
+                    source: "youtube",
+                    requester: interaction.user.id,
+                })) as SearchResult;
+            } else {
+                return await interaction.editReply({
+                    embeds: [
+                        new EmbedBuilder().setTitle("Lavalink tidak terhubung!").setDescription("Silahkan tunggu beberapa waktu.").setColor("Random"),
+                    ],
+                });
+            }
+
             const trackGetData: MoonlinkTrack[] = res.tracks.slice(0, 5);
-            
+
             const userVoice: string = checkVoice(interaction);
             if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
-            
-            if (query.includes("https://") && !query.includes("youtube.com")) return await interaction.reply({ content: "Tolong berikan link dari youtube.", ephemeral: true });
-            
+
+            if (query.includes("https://") && !query.includes("youtube.com"))
+                return await interaction.reply({ content: "Tolong berikan link dari youtube.", ephemeral: true });
+
             const options = trackGetData.map((e: MoonlinkTrack, i: number): StringSelectMenuOptionBuilder => {
                 let name: string = `${i + 1}. ${e.title}`
                     .replace(/#\w+/g, "")

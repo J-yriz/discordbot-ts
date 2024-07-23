@@ -1,5 +1,5 @@
 import App from "../../utils/discordBot";
-import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } from "discord.js";
 import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
 import { MoonlinkTrack } from "moonlink.js";
 import { find } from "llyrics";
@@ -114,6 +114,13 @@ const getLyrics = async (interaction: ChatInputCommandInteraction, queue: Moonli
     }
 
     const lyrics: string[] = search.lyrics.split("\n");
+
+    const buttonPrevLyrics = new ButtonBuilder().setCustomId("prevLyrics").setLabel("⬅️ Prev Lyrics").setStyle(ButtonStyle.Primary).setDisabled(lyrics.join("\n").length < 2000);
+    const buttonNextLyrics = new ButtonBuilder().setCustomId("nextLyrics").setLabel("Next Lyrics ➡️").setStyle(ButtonStyle.Primary).setDisabled(lyrics.join("\n").length < 2000);;
+    const buttonDeleteLyrics = new ButtonBuilder().setCustomId("deleteLyrics").setLabel("🗑️ Delete Lyrics").setStyle(ButtonStyle.Danger).setDisabled(lyrics.join("\n").length < 2000);;
+
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(buttonPrevLyrics, buttonNextLyrics, buttonDeleteLyrics);
+
     if (trySearch > 0) {
         if (search.artist !== songTitle[0].trim()) {
             getLyrics(interaction, queue);
@@ -130,6 +137,7 @@ const getLyrics = async (interaction: ChatInputCommandInteraction, queue: Moonli
                         .setColor("Random")
                         .setTimestamp(),
                 ],
+                components: [row],
             });
         }
     } else {

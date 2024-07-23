@@ -12,40 +12,52 @@ import {
     Message,
 } from "discord.js";
 import { MoonlinkPlayer, MoonlinkTrack, SearchResult } from "moonlink.js";
-import { looping, changeLoop } from "./loop";
+import { looping } from "./loop";
+import config from "../../config";
 
-let firstPlay: number = 0;
+let firstPlay: number;
 const play = {
     data: new SlashCommandBuilder()
-    .setName("play")
-    .setDescription("Mainkan music yang kamu inginkan.")
-    .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
-    .setDMPermission(false)
-    .addStringOption((option) => option.setName("song").setDescription("Masukan judul musik atau link.").setRequired(true)),
+        .setName("play")
+        .setDescription("Mainkan music yang kamu inginkan.")
+        .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
+        .setDMPermission(false)
+        .addStringOption((option) => option.setName("song").setDescription("Masukan judul musik atau link.").setRequired(true)),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
         const query: string = interaction.options.getString("song") as string;
         const userVoice: string = checkVoice(interaction);
         if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
-        
+
         if (query.includes("https://") && !query.includes("youtube.com")) {
             if (!query.includes("youtu.be")) {
                 return await interaction.reply({ content: "Tolong berikan link dari youtube.", ephemeral: true });
             }
         }
-        
+
         await interaction.deferReply();
-        
-        const res: SearchResult = (await app.lavaClient?.search({
-            query,
-            source: "youtube",
-            requester: interaction.user.id,
-        })) as SearchResult;
+
+        let res: SearchResult;
+        const node = app.lavaClient?.nodes.get(config.Lavalink.nodeName);
+        if (node.state === "READY") {
+            res = (await app.lavaClient?.search({
+                query,
+                source: "youtube",
+                requester: interaction.user.id,
+            })) as SearchResult;
+        } else {
+            return await interaction.editReply({
+                embeds: [
+                    new EmbedBuilder().setTitle("Lavalink tidak terhubung!").setDescription("Silahkan tunggu beberapa waktu.").setColor("Random"),
+                ],
+            });
+        }
+
         if (!res.tracks.length) {
             return await interaction.editReply({
                 embeds: [new EmbedBuilder().setTitle("No tracks found").setColor("Random")],
             });
         }
-        
+
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
         const tracks: MoonlinkTrack = res.tracks[0];
 
@@ -80,19 +92,15 @@ export function durationMusic(durasi: number): string {
     return `${jam}:${menit}`;
 }
 
-let firstResponse: Message<boolean> | undefined;
-let nextResponse: Message<boolean> | undefined;
-const setResponse = (): void => {
-    firstResponse = undefined;
-    nextResponse = undefined;
-};
-export const deleteResponse = (): void => {
+export const deleteResponse = (serverData: MusicDiscord): void => {
+    const firstResponse = serverData.firstResponse;
+    const nextResponse = serverData.nextResponse;
     if (nextResponse) {
         nextResponse.delete();
-        setResponse();
+        serverData.nextResponse = undefined;
     } else if (firstResponse) {
         firstResponse.delete();
-        setResponse();
+        serverData.firstResponse = undefined;
     }
 };
 
@@ -101,17 +109,15 @@ export const setSkipPrevCondition = (condition: boolean): void => {
     skipPrevCondition = condition;
 };
 
-export let interactionEx: ChatInputCommandInteraction | StringSelectMenuInteraction;
 export const playSong = async (
     interaction: ChatInputCommandInteraction | StringSelectMenuInteraction,
     app: App,
     userVoice: string,
     serverData: MusicDiscord
 ): Promise<void> => {
-    interactionEx = interaction;
+    serverData.interaction = interaction;
     if (Object.keys(serverData.playBot).length === 0) {
         serverData.playBot = serverData.playerBot(interaction, app, userVoice);
-        console.log("PlayerBot created");
     }
     const playerBot: MoonlinkPlayer = serverData.playBot;
 
@@ -121,12 +127,11 @@ export const playSong = async (
 
     const queue: MoonlinkTrack[] = serverData.nextQueue;
     const nextTrack: MoonlinkTrack = queue[0];
-    console.log("Play music", serverData.nextQueue[0].title);
     playerBot.play(nextTrack);
 
     const embed = new EmbedBuilder()
         .setAuthor({ name: `${interaction.guild?.name} • Now playing` })
-        .setTitle(`${nextTrack.title}             `)
+        .setTitle(`${nextTrack.title}`)
         .setURL(nextTrack.url)
         .setThumbnail(nextTrack.artworkUrl)
         .addFields(
@@ -171,10 +176,10 @@ export const playSong = async (
     );
 
     if (firstPlay === 0) {
-        firstResponse = await interaction.editReply({ content: "", embeds: [embed], components: [row, row1] });
+        serverData.firstResponse = await interaction.editReply({ content: "", embeds: [embed], components: [row, row1] });
         firstPlay++;
     } else {
-        nextResponse = (await interaction.channel?.send({ content: "", embeds: [embed], components: [row, row1] })) as Message<boolean>;
+        serverData.nextResponse = await interaction.channel?.send({ content: "", embeds: [embed], components: [row, row1] });
     }
 };
 

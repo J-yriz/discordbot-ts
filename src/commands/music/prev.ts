@@ -23,7 +23,7 @@ const previus = {
                 ephemeral: true,
             });
 
-        deleteResponse();
+        deleteResponse(serverData);
         await interaction.reply({
             embeds: [
                 new EmbedBuilder().setTitle("Success").setDescription(`Mainkan music sebelumnya ${serverData.prevQueue[0].title}`).setColor("Green"),
