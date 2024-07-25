@@ -1,6 +1,15 @@
 import App from "../../utils/discordBot";
-import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } from "discord.js";
-import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import {
+    ChatInputCommandInteraction,
+    PermissionFlagsBits,
+    SlashCommandBuilder,
+    EmbedBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ActionRowBuilder,
+    Message,
+} from "discord.js";
+import { MusicDiscord, dataServer } from "../../utils/musicDiscord";
 import { MoonlinkTrack } from "moonlink.js";
 import { find } from "llyrics";
 import config from "../../config";
@@ -13,9 +22,6 @@ const lyrics = {
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
-        const userVoice: string = checkVoice(interaction);
-        if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
-
         await interaction.deferReply();
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
@@ -85,7 +91,22 @@ const phrasesToRemove: string[] = [
 
 let dataObject: Data;
 let trySearch: number = 3;
+
+export let row: ActionRowBuilder<ButtonBuilder>;
+
+export let queueMusic: MoonlinkTrack;
+export let lyric: string;
+export let sisaLyrics: string;
+export let lyricsEmbed: Message<boolean>;
+export function setLyricsEmbedUndi() {
+    if (lyricsEmbed) {
+        lyricsEmbed.delete();
+        (lyricsEmbed as any) = undefined;
+    }
+}
+
 const getLyrics = async (interaction: ChatInputCommandInteraction, queue: MoonlinkTrack) => {
+    queueMusic = queue;
     const songTitle = queue.title
         .replace(new RegExp(phrasesToRemove.join("|"), "gi"), "")
         .replace(/\s*([\[\(].*?[\]\)])?\s*(\|.*)?\s*(\*.*)?$/, "")
@@ -114,12 +135,31 @@ const getLyrics = async (interaction: ChatInputCommandInteraction, queue: Moonli
     }
 
     const lyrics: string[] = search.lyrics.split("\n");
+    let prevNextCondition: boolean = true;
+    lyric = formatLyrics(lyrics.join("\n"));
+    if (lyrics.join("\n").length > 2000) {
+        prevNextCondition = false;
+        lyric = lyric.slice(0, 2000);
+        sisaLyrics = lyric.slice(2000);
+    }
 
-    const buttonPrevLyrics = new ButtonBuilder().setCustomId("prevLyrics").setLabel("⬅️ Prev Lyrics").setStyle(ButtonStyle.Primary).setDisabled(lyrics.join("\n").length < 2000);
-    const buttonNextLyrics = new ButtonBuilder().setCustomId("nextLyrics").setLabel("Next Lyrics ➡️").setStyle(ButtonStyle.Primary).setDisabled(lyrics.join("\n").length < 2000);;
-    const buttonDeleteLyrics = new ButtonBuilder().setCustomId("deleteLyrics").setLabel("🗑️ Delete Lyrics").setStyle(ButtonStyle.Danger).setDisabled(lyrics.join("\n").length < 2000);;
+    const buttonPrevLyrics = new ButtonBuilder()
+        .setCustomId("prevLyrics")
+        .setLabel("⬅️ Prev Lyrics")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(prevNextCondition);
+    const buttonNextLyrics = new ButtonBuilder()
+        .setCustomId("nextLyrics")
+        .setLabel("Next Lyrics ➡️")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(prevNextCondition);
+    const buttonDeleteLyrics = new ButtonBuilder()
+        .setCustomId("deleteLyrics")
+        .setLabel("🗑️ Delete Lyrics")
+        .setStyle(ButtonStyle.Danger)
+        .setDisabled(false);
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(buttonPrevLyrics, buttonNextLyrics, buttonDeleteLyrics);
+    row = new ActionRowBuilder<ButtonBuilder>().addComponents(buttonPrevLyrics, buttonNextLyrics, buttonDeleteLyrics);
 
     if (trySearch > 0) {
         if (search.artist !== songTitle[0].trim()) {
@@ -127,13 +167,14 @@ const getLyrics = async (interaction: ChatInputCommandInteraction, queue: Moonli
             trySearch--;
         } else {
             trySearch = 3;
-            return await interaction.editReply({
+            setLyricsEmbedUndi();
+            return lyricsEmbed = await interaction.editReply({
                 embeds: [
                     new EmbedBuilder()
                         .setTitle(queue.title)
                         .setURL(queue.url)
                         .setThumbnail(queue.artworkUrl)
-                        .setDescription(formatLyrics(lyrics.join("\n")))
+                        .setDescription(lyric)
                         .setColor("Random")
                         .setTimestamp(),
                 ],

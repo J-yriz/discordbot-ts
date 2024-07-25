@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 import App, { Command, Button, StringSelect } from "../../utils/discordBot";
-import { MusicDiscord, dataServer } from "../../utils/musicDiscord";
-import { Events, EmbedBuilder } from "discord.js";
+import { MusicDiscord, checkVoice, dataServer, noSameVoiceChannel, noVoiceChannel } from "../../utils/musicDiscord";
+import { Events, EmbedBuilder, ChatInputCommandInteraction, ButtonInteraction } from "discord.js";
 
 const InteractionCreate = (app: App, token: string, commands: any[]): void => {
     app.on(Events.InteractionCreate, async (interaction) => {
@@ -15,20 +15,30 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
 
         const waktu = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
         if (interaction.isCommand()) {
+            const { commandName } = interaction;
+
+            // Show log command
+            console.log(`[${waktu}] ${interaction.user.tag} menggunakan command ${commandName}`);
+
             const musicCommands = path.join(__dirname, "../../commands/music");
             const musicCommandName = fs.readdirSync(musicCommands);
 
-            // Show log command
-            console.log(`[${waktu}] ${interaction.user.tag} menggunakan command ${interaction.commandName}`);
+            if (musicCommandName.includes(`${commandName}.js`)) {
+                if (!checkVoice(interaction as ChatInputCommandInteraction)) return await interaction.reply({ embeds: [noVoiceChannel] });
 
-            if (musicCommandName.includes(`${interaction.commandName}.js`)) {
-                if (!dataServer.get(interaction.guildId as string)) {
+                let serverData = dataServer.get(interaction.guildId as string) as MusicDiscord;
+                if (!serverData) {
                     const dataNewPlayer: MusicDiscord = new MusicDiscord();
                     dataServer.set(interaction.guildId as string, dataNewPlayer);
+                    serverData = dataServer.get(interaction.guildId as string) as MusicDiscord;
+                    serverData.voiceUser = checkVoice(interaction as ChatInputCommandInteraction);
+                } else {
+                    if (serverData.voiceUser !== checkVoice(interaction as ChatInputCommandInteraction)) {
+                        return await interaction.reply({ embeds: [noSameVoiceChannel], ephemeral: true });
+                    }
                 }
             }
 
-            const { commandName } = interaction;
             const command: any = app.commandsCollection.get(commandName) as Command;
             if (!command) return;
 
@@ -42,11 +52,22 @@ const InteractionCreate = (app: App, token: string, commands: any[]): void => {
                 });
             }
         } else if (interaction.isButton()) {
-            const button: Button = app.buttonsCollection.get(interaction.customId) as Button;
+            const { customId } = interaction;
+            const button: Button = app.buttonsCollection.get(customId) as Button;
             if (!button) return;
 
             // Show log button
-            console.log(`[${waktu}] ${interaction.user.tag} menggunakan button ${interaction.customId}`);
+            console.log(`[${waktu}] ${interaction.user.tag} menggunakan button ${customId}`);
+
+            const buttonFoldersPath = path.join(__dirname, "../../others/buttonResponses/music");
+            const buttonFolders = fs.readdirSync(buttonFoldersPath);
+
+            if (buttonFolders.includes(`${customId}.js`)) {
+                let serverData = dataServer.get(interaction.guildId as string) as MusicDiscord;
+                if (serverData.voiceUser !== checkVoice(interaction as ButtonInteraction)) {
+                    return await interaction.reply({ embeds: [noSameVoiceChannel], ephemeral: true });
+                }
+            }
 
             try {
                 await button.exec(interaction, app);

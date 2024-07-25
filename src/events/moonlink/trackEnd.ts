@@ -1,9 +1,9 @@
 import App from "../../utils/discordBot";
 import { EmbedBuilder } from "discord.js";
-import { MoonlinkPlayer } from "moonlink.js";
 import { looping, changeLoop } from "../../commands/music/loop";
-import { checkVoice, dataServer, MusicDiscord } from "../../utils/musicDiscord";
+import { dataServer, MusicDiscord } from "../../utils/musicDiscord";
 import { deleteResponse, setSkipPrevCondition, skipPrevCondition, playSong } from "../../commands/music/play";
+import { setLyricsEmbedUndi } from "../../commands/music/lyrics";
 
 const trackEnd = (app: App, token: string, commands: any[]) => {
     app.lavaClient?.on("trackEnd", async (player) => {
@@ -12,6 +12,7 @@ const trackEnd = (app: App, token: string, commands: any[]) => {
         const playerBot = serverData.playBot;
         const queue = serverData.nextQueue;
         deleteResponse(serverData);
+        setLyricsEmbedUndi();
         if (!skipPrevCondition) {
             if (!looping) {
                 serverData.prevQueue.push(queue[0]);
@@ -22,7 +23,7 @@ const trackEnd = (app: App, token: string, commands: any[]) => {
         }
 
         if (queue.length > 0) {
-            playSong(interaction, app, checkVoice(interaction), serverData);
+            playSong(interaction, app, serverData);
         } else {
             if (playerBot) {
                 playerBot.disconnect();

@@ -1,7 +1,7 @@
 import App from "../../utils/discordBot";
 import { durationMusic } from "./play";
 import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from "discord.js";
-import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { MusicDiscord, dataServer } from "../../utils/musicDiscord";
 
 const removeQueue = {
     data: new SlashCommandBuilder()
@@ -12,8 +12,6 @@ const removeQueue = {
         .addIntegerOption((option) => option.setName("antrian").setDescription("Nomor antrian music yang ingin dihapus").setRequired(true)),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
         const indexQueue: number = interaction.options.getInteger("antrian") as number;
-        const userVoice: string = checkVoice(interaction);
-        if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
         if (serverData.nextQueue.length === 0) {

@@ -1,5 +1,5 @@
 import App from "../../utils/discordBot";
-import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { MusicDiscord, dataServer } from "../../utils/musicDiscord";
 import {
     ChatInputCommandInteraction,
     PermissionFlagsBits,
@@ -25,8 +25,6 @@ const play = {
         .addStringOption((option) => option.setName("song").setDescription("Masukan judul musik atau link.").setRequired(true)),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
         const query: string = interaction.options.getString("song") as string;
-        const userVoice: string = checkVoice(interaction);
-        if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
 
         if (query.includes("https://") && !query.includes("youtube.com")) {
             if (!query.includes("youtu.be")) {
@@ -41,7 +39,7 @@ const play = {
         if (node.state === "READY") {
             res = (await app.lavaClient?.search({
                 query,
-                source: "youtube",
+                source: config.Lavalink.Source,
                 requester: interaction.user.id,
             })) as SearchResult;
         } else {
@@ -52,6 +50,8 @@ const play = {
             });
         }
 
+        if (res.loadType === "error" || res.loadType === "empty") return await interaction.editReply({ embeds: [new EmbedBuilder().setTitle("Tidak ada music yang ditemukan").setDescription('Kesalahan terjadi pada lavalink.').setColor("DarkRed")] });
+        
         if (!res.tracks.length) {
             return await interaction.editReply({
                 embeds: [new EmbedBuilder().setTitle("No tracks found").setColor("Random")],
@@ -66,7 +66,7 @@ const play = {
         if (serverData.nextQueue.length === 1) {
             await interaction.editReply({ content: "Memutar music..." });
             firstPlay = 0;
-            playSong(interaction, app, userVoice, serverData);
+            playSong(interaction, app, serverData);
         } else {
             await interaction.editReply({
                 content: "",
@@ -112,10 +112,10 @@ export const setSkipPrevCondition = (condition: boolean): void => {
 export const playSong = async (
     interaction: ChatInputCommandInteraction | StringSelectMenuInteraction,
     app: App,
-    userVoice: string,
     serverData: MusicDiscord
 ): Promise<void> => {
     serverData.interaction = interaction;
+    const userVoice = serverData.voiceUser as string;
     if (Object.keys(serverData.playBot).length === 0) {
         serverData.playBot = serverData.playerBot(interaction, app, userVoice);
     }

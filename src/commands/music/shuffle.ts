@@ -1,6 +1,6 @@
 import App from "../../utils/discordBot";
 import { ChatInputCommandInteraction, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from "discord.js";
-import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { MusicDiscord, dataServer } from "../../utils/musicDiscord";
 import { MoonlinkTrack } from "moonlink.js";
 
 let shuffleMode: boolean = false;
@@ -11,9 +11,6 @@ const shuffle = {
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
-        const userVoice: string = checkVoice(interaction);
-        if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
-
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
         const queue: MoonlinkTrack[] = serverData.nextQueue;
 

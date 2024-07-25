@@ -10,7 +10,6 @@ import {
     Message,
 } from "discord.js";
 import { durationMusic } from "./play";
-import { checkVoice, noVoiceChannel } from "../../utils/musicDiscord";
 import { MoonlinkTrack, SearchResult } from "moonlink.js";
 import config from "../../config";
 
@@ -32,7 +31,7 @@ const search = {
             if (node.state === "READY") {
                 res = (await app.lavaClient?.search({
                     query,
-                    source: "youtube",
+                    source: config.Lavalink.Source,
                     requester: interaction.user.id,
                 })) as SearchResult;
             } else {
@@ -43,11 +42,9 @@ const search = {
                 });
             }
 
+            if (res.loadType === "error" || res.loadType === "empty") return await interaction.editReply({ embeds: [new EmbedBuilder().setTitle("Tidak ada music yang ditemukan").setDescription('Kesalahan terjadi pada lavalink.').setColor("DarkRed")] });
+
             const trackGetData: MoonlinkTrack[] = res.tracks.slice(0, 5);
-
-            const userVoice: string = checkVoice(interaction);
-            if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
-
             if (query.includes("https://") && !query.includes("youtube.com"))
                 return await interaction.reply({ content: "Tolong berikan link dari youtube.", ephemeral: true });
 
@@ -61,29 +58,31 @@ const search = {
                 return new StringSelectMenuOptionBuilder()
                     .setLabel(name)
                     .setDescription(`${durationMusic(e.duration)} | ${e.author}`)
-                    .setValue(name);
+                    .setValue(e.url);
             });
             const selectMusic = new StringSelectMenuBuilder()
                 .setCustomId("selectMusic")
                 .setPlaceholder("Pilih music yang ingin diputar")
-                .addOptions(options);
+                .addOptions(options)
+                .setDisabled(false);
 
             const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMusic);
 
+            if (responseChat) responseChat.delete();
             responseChat = await interaction.editReply({
                 content: "Pilih salah satu lagu di bawah ini:",
                 components: [row],
             });
 
-            try {
-                const filter = (i: any) => i.user.id === interaction.user.id;
-                await responseChat.awaitMessageComponent({ filter, time: 30000 });
-            } catch (e) {
-                await responseChat.edit({ content: "Waktu habis, silahkan ulangi lagi.", components: [] });
-                setTimeout(() => {
-                    responseChat.delete();
-                }, 5000);
-            }
+            // try {
+            //     const filter = (i: any) => i.user.id === interaction.user.id;
+            //     await responseChat.awaitMessageComponent({ filter, time: 30000 });
+            // } catch (e) {
+            //     await responseChat.edit({ content: "Waktu habis, silahkan ulangi lagi.", components: [] });
+            //     setTimeout(() => {
+            //         responseChat.delete();
+            //     }, 5000);
+            // }
         } catch (error) {
             console.error(error);
         }

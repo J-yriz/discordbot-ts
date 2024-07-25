@@ -1,7 +1,7 @@
 import App from "../../utils/discordBot";
 import { looping } from "./loop";
 import { deleteResponse, setSkipPrevCondition } from "./play";
-import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { MusicDiscord, dataServer } from "../../utils/musicDiscord";
 import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, GuildMember } from "discord.js";
 
 const skip = {
@@ -10,10 +10,7 @@ const skip = {
         .setDescription("Skip music yang sedang diputar")
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
-    async exec(interaction: ChatInputCommandInteraction, app: App) {
-        const userVoice: string = checkVoice(interaction);
-        if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
-        
+    async exec(interaction: ChatInputCommandInteraction, app: App) {        
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
         const playerBot = serverData.playBot;
 

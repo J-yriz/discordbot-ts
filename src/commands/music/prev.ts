@@ -1,7 +1,7 @@
 import App from "../../utils/discordBot";
 import { looping } from "./loop";
 import { deleteResponse, setSkipPrevCondition } from "./play";
-import { MusicDiscord, checkVoice, dataServer, noVoiceChannel } from "../../utils/musicDiscord";
+import { MusicDiscord, dataServer } from "../../utils/musicDiscord";
 import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, GuildMember } from "discord.js";
 
 const previus = {
@@ -11,9 +11,6 @@ const previus = {
         .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
-        const userVoice: string = checkVoice(interaction);
-        if (!userVoice) return await interaction.reply({ embeds: [noVoiceChannel], ephemeral: true });
-        
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
         const playerBot = serverData.playBot;
         
