@@ -20,22 +20,26 @@ const help = {
         .addStringOption((option) => option.setName("command").setDescription("Pilih command").setRequired(true).addChoices(commandOptions))
         .setDMPermission(false),
     async exec(interaction: ChatInputCommandInteraction, app: App) {
-        let array: string[] = [];
-        const map1: Map<string, number> = new Map<string, number>();
+        const command = interaction.options.getString("command") as string;
+        const helpData = fs.readFileSync(`./json/help.json`, "utf-8");
+        const helpJson = JSON.parse(helpData);
+        const commandData = helpJson[command];
+        const helpEmbed = Object.keys(commandData).map((key) => {
+            return {
+                name: fistCaps(key),
+                value: commandData[key],
+                inline: false,
+            };
+        });
 
-        map1.set("a", 1);
-        map1.set("b", 2);
-        map1.set("c", 3);
-        for (const key of map1.keys()) {
-            console.log(key);
-            array.push(key);
-        }
-        console.log(array);
         await interaction.reply({
-            embeds: [new EmbedBuilder().setTitle("Help Command").setDescription("This is a help command").setColor("Random").setTimestamp()],
-            ephemeral: true,
+            embeds: [new EmbedBuilder().setTitle(`Help commands ${fistCaps(command)}`).addFields(helpEmbed).setColor("Random").setTimestamp()],
         });
     },
 };
+
+function fistCaps(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 export default help;

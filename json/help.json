@@ -1,0 +1,26 @@
+{
+    "music": {
+        "discconect" : "Bot keluar dari voice channel ``/disconnect``",
+        "join" : "Bot masuk ke voice channel ``/join``",
+        "loop" : "Mengulang lagu yang sedang diputar ``/loop``",
+        "lyrics" : "Menampilkan lirik lagu yang sedang diputar ``/lyrics``",
+        "nowplaying" : "Menampilkan lagu yang sedang diputar ``/nowplaying``",
+        "pause" : "Menjeda lagu yang sedang diputar ``/pause``",
+        "play" : "Memutar lagu ``/play <judul lagu>``",
+        "queue" : "Menampilkan antrian lagu ``/queue``",
+        "removeQueue" : "Menghapus lagu dari antrian ``/removequeue <nomor antrian>``",
+        "resume" : "Melanjutkan lagu yang sedang dijeda ``/resume``",
+        "search" : "Mencari lagu dengan 5 pilihan ``/search <judul lagu>``",
+        "shuffle" : "Mengacak antrian lagu ``/shuffle``",
+        "skip" : "Melewati lagu yang sedang diputar ``/skip``"
+    },
+    "admin": {
+        "purge": "Menghapus pesan dalam jumlah tertentu ``/purge <jumlah pesan>``"
+    },
+    "utility": {
+        "help": "Menampilkan semua command yang tersedia ``/help <kategori command>``",
+        "ping": "Menampilkan ping bot ``/ping``",
+        "serverinfo": "Menampilkan informasi server ``/serverinfo``",
+        "avatar": "Menampilkan avatar user ``/avatar <@user>``"
+    }
+}
