@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import App from "../../utils/discordBot";
-import queueMusic from "../../commands/music/queue";
+import App from "../../../utils/discordBot";
+import queueMusic from "../../../commands/music/queue";
 
 const queueSong = {
     customId: "queue",

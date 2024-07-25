@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import App from "../../utils/discordBot";
-import loop from "../../commands/music/loop";
+import App from "../../../utils/discordBot";
+import loop from "../../../commands/music/loop";
 
 const loopSong = {
     customId: "loop",

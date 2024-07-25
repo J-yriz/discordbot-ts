@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import App from "../../utils/discordBot";
-import skip from "../../commands/music/skip";
+import App from "../../../utils/discordBot";
+import skip from "../../../commands/music/skip";
 
 const nextSong = {
     customId: "next",

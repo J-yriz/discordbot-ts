@@ -1,27 +1,38 @@
-import { StringSelectMenuInteraction, GuildMember, EmbedBuilder } from "discord.js";
-import { checkVoice, dataServer } from "../../utils/musicDiscord";
-import { MusicDiscord } from "../../utils/musicDiscord";
+import {
+    StringSelectMenuInteraction,
+    EmbedBuilder,
+    StringSelectMenuBuilder,
+    StringSelectMenuComponentData,
+    ActionRowBuilder,
+} from "discord.js";
+import { MusicDiscord, dataServer } from "../../utils/musicDiscord";
 import App from "../../utils/discordBot";
 import { playSong } from "../../commands/music/play";
-import { responseChat } from "../../commands/music/search";
 import { SearchResult } from "moonlink.js";
+import config from "../../config";
 
 const selectMusic = {
     customId: "selectMusic",
     async exec(interaction: StringSelectMenuInteraction, app: App) {
-        const query: string = interaction.values[0].split(".")[1].trim();
-        const userVoice: string = checkVoice(interaction);
-        const res: SearchResult = (await app.lavaClient?.search({ query, source: "youtube", requester: interaction.user.id })) as SearchResult;
+        const query: string = interaction.values[0];
+        const res: SearchResult = (await app.lavaClient?.search({ query, source: config.Lavalink.Source, requester: interaction.user.id })) as SearchResult;
 
         const track = res.tracks[0];
 
         const serverData: MusicDiscord = dataServer.get(interaction.guildId as string) as MusicDiscord;
         serverData.nextQueue.push(track);
 
-        responseChat.delete();
+        const disableMenu = new StringSelectMenuBuilder(interaction.component as StringSelectMenuComponentData)
+            .setCustomId("selectMusic")
+            .setPlaceholder(track.title)
+            .setDisabled(true);
+        const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(disableMenu);
+        await interaction.message.edit({ components: [row] });
+
         await interaction.deferReply();
         if (serverData.nextQueue.length === 1) {
-            playSong(interaction, app, userVoice, serverData);
+            await interaction.editReply({ content: "Memuat music..." });
+            playSong(interaction, app, serverData);
         } else {
             await interaction.editReply({
                 content: "",

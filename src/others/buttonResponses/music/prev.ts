@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import App from "../../utils/discordBot";
-import previus from "../../commands/music/prev";
+import App from "../../../utils/discordBot";
+import previus from "../../../commands/music/prev";
 
 const prevSearch = {
     customId: "prev",

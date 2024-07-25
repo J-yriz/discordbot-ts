@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import App from "../../utils/discordBot";
-import lyrics from "../../commands/music/lyrics";
+import App from "../../../utils/discordBot";
+import lyrics from "../../../commands/music/lyrics";
 
 const lyricsSong = {
     customId: "lyrics",
