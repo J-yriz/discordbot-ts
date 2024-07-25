@@ -26,9 +26,14 @@ This project is a Discord bot built using TypeScript and the [discord.js](https:
 3. Create a `.env` file in the root directory and add your Discord bot token:
 
     ```env
-    DISCORD_TOKEN=YOUR TOKEN
-    DISCORD_CLIENT_ID=YOUR CLIENT ID
-    DISCORD_CLIENT_SECRET=YOUR CLIENT SECRET
+    DISCORD_TOKEN=YOUR_TOKEN
+    DISCORD_CLIENT_ID=YOUR_CLIENT_ID
+    DISCORD_CLIENT_SECRET=YOUR_CLIENT_SECRET
+    <!-- Optional if ur config.ts UseGenius false -->
+    GENIUS_TOKEN=YOUR_GENIUS_TOKEN
+    LAVA_IP="127.0.0.1"
+    LAVA_PORT=3000
+    LAVA_PASS="NOTYOURBUSINESS"
     ```
 
 ## Scripts
