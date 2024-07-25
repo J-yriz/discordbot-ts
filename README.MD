@@ -38,6 +38,7 @@ This project is a Discord bot built using TypeScript and the [discord.js](https:
 
 ## Scripts
 
+- `npm run dev`   - Compile TS to JS and Running the code.
 - `npm run build` - Compile TypeScript to JavaScript.
 - `npm run start` - Start the bot using the compiled JavaScript code.
 
